@@ -216,7 +216,6 @@ Location: `~/.openclaw/openclaw.json`
 
 You should see: `MCP server "grizzly-sms" connected`
 ```
-
 ### Available Tools
 
 #### Phone Number Operations
@@ -515,7 +514,6 @@ npm test
 
 Должно появиться: `MCP server "grizzly-sms" connected`
 ```
-
 ### Доступные инструменты
 
 #### Операции с телефонными номерами
