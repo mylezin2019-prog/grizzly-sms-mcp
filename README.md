@@ -4,6 +4,7 @@
 
 ---
 
+<a name="english"></a>
 ## English
 
 MCP (Model Context Protocol) server for integrating with [Grizzly SMS](https://grizzlysms.com/) service - a platform for receiving SMS verification codes and virtual phone numbers.
@@ -297,6 +298,7 @@ npm run test:api
 
 ---
 
+<a name="russian"></a>
 ## Русский
 
 MCP (Model Context Protocol) сервер для интеграции с сервисом [Grizzly SMS](https://grizzlysms.com/) - платформой для получения SMS кодов верификации и виртуальных номеров телефонов.
