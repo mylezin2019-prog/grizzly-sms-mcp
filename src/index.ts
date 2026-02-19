@@ -7,7 +7,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import dotenv from 'dotenv';
-import { SMSActivateClient } from './sms-activate-client.js';
+import { GrizzlySMSClient } from './grizzly-sms-client.js';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -16,15 +16,15 @@ dotenv.config();
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const API_KEY = process.env.SMS_ACTIVATE_API_KEY;
-const BASE_URL = process.env.SMS_ACTIVATE_BASE_URL || 'https://api.sms-activate.ae';
+const API_KEY = process.env.GRIZZLY_SMS_API_KEY || process.env.SMS_ACTIVATE_API_KEY;
+const BASE_URL = process.env.GRIZZLY_SMS_BASE_URL || process.env.SMS_ACTIVATE_BASE_URL || 'https://api.grizzlysms.com';
 
 if (!API_KEY) {
-  console.error('SMS_ACTIVATE_API_KEY environment variable is required');
+  console.error('GRIZZLY_SMS_API_KEY or SMS_ACTIVATE_API_KEY environment variable is required');
   process.exit(1);
 }
 
-const client = new SMSActivateClient(API_KEY, BASE_URL);
+const client = new GrizzlySMSClient(API_KEY, BASE_URL);
 
 const servicesData = JSON.parse(
   readFileSync(join(__dirname, '../docs/services.json'), 'utf-8')
@@ -34,7 +34,7 @@ const serviceMap = new Map<string, string>(servicesData.map((s: any) => [s.name.
 
 const server = new Server(
   {
-    name: 'mcp-sms-activate',
+    name: 'mcp-grizzly-sms',
     version: '1.0.0',
   },
   {
@@ -44,27 +44,21 @@ const server = new Server(
   }
 );
 
-const GetBalanceSchema = z.object({});
-
-const GetNumbersStatusSchema = z.object({
-  country: z.number().optional().describe('Country ID (e.g., 0 for Russia, 1 for Ukraine)'),
-  operator: z.string().optional().describe('Operator name (e.g., "mts", "beeline")'),
-});
-
-const GetTopCountriesSchema = z.object({
-  service: z.string().describe('Service code (e.g., "tg" for Telegram, "wa" for WhatsApp)'),
-});
-
-const GetOperatorsSchema = z.object({
-  country: z.number().describe('Country ID'),
-});
+//const GetBalanceSchema = z.object({});
 
 const RequestNumberSchema = z.object({
   service: z.string().describe('Service code or name (e.g., "tg", "Telegram", "wa", "WhatsApp")'),
-  country: z.number().optional().describe('Country ID (e.g., 0 for Russia)'),
+  country: z.union([z.number(), z.string()]).optional().describe('Country ID (e.g., 0 for Russia) or "*" or "any" for any country'),
   operator: z.string().optional().describe('Operator name'),
   forward: z.number().optional().describe('Forward option (0 or 1)'),
   ref: z.string().optional().describe('Referral code'),
+  ref_id: z.string().optional().describe('Referral ID'),
+  maxPrice: z.number().optional().describe('Maximum price'),
+  providerIds: z.string().optional().describe('Comma-separated provider IDs'),
+  exceptProviderIds: z.string().optional().describe('Comma-separated provider IDs to exclude'),
+  phoneException: z.string().optional().describe('Comma-separated phone numbers to exclude'),
+  activationType: z.number().optional().describe('Activation type (1, 2, 3, or 4)'),
+        version: z.enum(['v1', 'v2']).optional().describe('API version (v1=plain text, v2=JSON with details)'),
 });
 
 const SetStatusSchema = z.object({
@@ -76,39 +70,15 @@ const GetStatusSchema = z.object({
   activationId: z.string().describe('Activation ID'),
 });
 
-const GetActiveActivationsSchema = z.object({});
-
-const GetActivationHistorySchema = z.object({});
-
 const GetPricesSchema = z.object({
-  country: z.number().optional().describe('Country ID'),
+  country: z.union([z.number(), z.string()]).optional().describe('Country ID or "*" for any country'),
   service: z.string().optional().describe('Service code'),
+  version: z.enum(['v1', 'v2', 'v3']).optional().describe('API version (v1, v2, or v3)'),
 });
 
-const GetCountriesSchema = z.object({});
+//const GetCountriesSchema = z.object({});
 
-const GetServicesSchema = z.object({});
-
-const GetEmailDomainsSchema = z.object({
-  site: z.string().optional().describe('Website for which to get email domains (e.g., "telegram.com")'),
-});
-
-const PurchaseEmailSchema = z.object({
-  site: z.string().describe('Website for activation (e.g., "telegram.com")'),
-  mailDomain: z.string().describe('Email domain (e.g., "gmail.com")'),
-});
-
-const GetEmailStatusSchema = z.object({
-  emailId: z.number().describe('Email activation ID'),
-});
-
-const CancelEmailSchema = z.object({
-  emailId: z.number().describe('Email activation ID'),
-});
-
-const ReorderEmailSchema = z.object({
-  emailId: z.number().describe('Email activation ID'),
-});
+//onst GetServicesSchema = z.object({});
 
 const tools: Tool[] = [
   {
@@ -120,49 +90,23 @@ const tools: Tool[] = [
     },
   },
   {
-    name: 'get_numbers_status',
-    description: 'Get available phone numbers quantity by country and service',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        country: { type: 'number', description: 'Country ID (e.g., 0 for Russia, 1 for Ukraine)' },
-        operator: { type: 'string', description: 'Operator name (e.g., "mts", "beeline")' },
-      },
-    },
-  },
-  {
-    name: 'get_top_countries',
-    description: 'Get top countries for a specific service',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        service: { type: 'string', description: 'Service code (e.g., "tg" for Telegram, "wa" for WhatsApp)' },
-      },
-      required: ['service'],
-    },
-  },
-  {
-    name: 'get_operators',
-    description: 'Get available operators for a country',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        country: { type: 'number', description: 'Country ID' },
-      },
-      required: ['country'],
-    },
-  },
-  {
     name: 'request_number',
     description: 'Request a phone number for SMS verification',
     inputSchema: {
       type: 'object',
       properties: {
         service: { type: 'string', description: 'Service code or name (e.g., "tg", "Telegram", "wa", "WhatsApp")' },
-        country: { type: 'number', description: 'Country ID (e.g., 0 for Russia)' },
+        country: { type: 'string', description: 'Country ID (e.g., 0 for Russia) or "*" or "any" for any country' },
         operator: { type: 'string', description: 'Operator name' },
         forward: { type: 'number', description: 'Forward option (0 or 1)' },
         ref: { type: 'string', description: 'Referral code' },
+        ref_id: { type: 'string', description: 'Referral ID' },
+        maxPrice: { type: 'number', description: 'Maximum price' },
+        providerIds: { type: 'string', description: 'Comma-separated provider IDs' },
+        exceptProviderIds: { type: 'string', description: 'Comma-separated provider IDs to exclude' },
+        phoneException: { type: 'string', description: 'Comma-separated phone numbers to exclude' },
+        activationType: { type: 'number', description: 'Activation type (1, 2, 3, or 4)' },
+        version: { type: 'string', enum: ['v1', 'v2'], description: 'API version (v1=plain text, v2=JSON with details)' },
       },
       required: ['service'],
     },
@@ -191,29 +135,14 @@ const tools: Tool[] = [
     },
   },
   {
-    name: 'get_active_activations',
-    description: 'Get list of active activations',
-    inputSchema: {
-      type: 'object',
-      properties: {},
-    },
-  },
-  {
-    name: 'get_activation_history',
-    description: 'Get activation history',
-    inputSchema: {
-      type: 'object',
-      properties: {},
-    },
-  },
-  {
     name: 'get_prices',
     description: 'Get prices for services by country',
     inputSchema: {
       type: 'object',
       properties: {
-        country: { type: 'number', description: 'Country ID' },
+        country: { type: 'string', description: 'Country ID or "*" for any country' },
         service: { type: 'string', description: 'Service code' },
+        version: { type: 'string', enum: ['v1', 'v2', 'v3'], description: 'API version (v1, v2, or v3)' },
       },
     },
   },
@@ -233,68 +162,13 @@ const tools: Tool[] = [
       properties: {},
     },
   },
-  {
-    name: 'get_email_domains',
-    description: 'Get available email domains for a site',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        site: { type: 'string', description: 'Website for which to get email domains (e.g., "telegram.com")' },
-      },
-    },
-  },
-  {
-    name: 'purchase_email',
-    description: 'Purchase an email activation',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        site: { type: 'string', description: 'Website for activation (e.g., "telegram.com")' },
-        mailDomain: { type: 'string', description: 'Email domain (e.g., "gmail.com")' },
-      },
-      required: ['site', 'mailDomain'],
-    },
-  },
-  {
-    name: 'get_email_status',
-    description: 'Get email activation status',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        emailId: { type: 'number', description: 'Email activation ID' },
-      },
-      required: ['emailId'],
-    },
-  },
-  {
-    name: 'cancel_email',
-    description: 'Cancel email activation',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        emailId: { type: 'number', description: 'Email activation ID' },
-      },
-      required: ['emailId'],
-    },
-  },
-  {
-    name: 'reorder_email',
-    description: 'Reorder email activation',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        emailId: { type: 'number', description: 'Email activation ID' },
-      },
-      required: ['emailId'],
-    },
-  },
 ];
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools,
 }));
 
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
+server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
   const { name, arguments: args = {} } = request.params;
 
   try {
@@ -306,45 +180,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             {
               type: 'text',
               text: `Balance: ${balance.balance} ${balance.currency}`,
-            },
-          ],
-        };
-      }
-
-      case 'get_numbers_status': {
-        const params = GetNumbersStatusSchema.parse(args);
-        const status = await client.getNumbersStatus(params.country, params.operator);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(status, null, 2),
-            },
-          ],
-        };
-      }
-
-      case 'get_top_countries': {
-        const params = GetTopCountriesSchema.parse(args);
-        const countries = await client.getTopCountriesByService(params.service);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(countries, null, 2),
-            },
-          ],
-        };
-      }
-
-      case 'get_operators': {
-        const params = GetOperatorsSchema.parse(args);
-        const operators = await client.getOperators(params.country);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(operators, null, 2),
             },
           ],
         };
@@ -365,13 +200,40 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           operator: params.operator,
           forward: params.forward,
           ref: params.ref,
-        });
+          ref_id: params.ref_id,
+          maxPrice: params.maxPrice,
+          providerIds: params.providerIds,
+          exceptProviderIds: params.exceptProviderIds,
+          phoneException: params.phoneException,
+          activationType: params.activationType,
+        }, params.version || 'v1');
+        
+        let responseText = `Phone number requested successfully!\nActivation ID: ${result.activationId}\nPhone: ${result.phone}`;
+        
+        // Add additional info for v2 responses
+        if (params.version === 'v2') {
+          if (result.activationCost) {
+            responseText += `\nCost: ${result.activationCost}`;
+          }
+          if (result.currency) {
+            responseText += `\nCurrency: ${result.currency}`;
+          }
+          if (result.countryCode) {
+            responseText += `\nCountry Code: ${result.countryCode}`;
+          }
+          if (result.canGetAnotherSms) {
+            responseText += `\nCan Get Another SMS: ${result.canGetAnotherSms}`;
+          }
+          if (result.activationTime) {
+            responseText += `\nActivation Time: ${result.activationTime}`;
+          }
+        }
         
         return {
           content: [
             {
               type: 'text',
-              text: `Phone number requested successfully!\nActivation ID: ${result.activationId}\nPhone: ${result.phone}`,
+              text: responseText,
             },
           ],
         };
@@ -409,33 +271,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      case 'get_active_activations': {
-        const activations = await client.getActiveActivations();
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(activations, null, 2),
-            },
-          ],
-        };
-      }
-
-      case 'get_activation_history': {
-        const history = await client.getActivationHistory();
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(history, null, 2),
-            },
-          ],
-        };
-      }
-
       case 'get_prices': {
         const params = GetPricesSchema.parse(args);
-        const prices = await client.getPrices(params.country, params.service);
+        const prices = await client.getPrices(params.country, params.service, params.version || 'v1');
         return {
           content: [
             {
@@ -470,71 +308,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      case 'get_email_domains': {
-        const params = GetEmailDomainsSchema.parse(args);
-        const domains = await client.getEmailDomains(params.site);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(domains, null, 2),
-            },
-          ],
-        };
-      }
-
-      case 'purchase_email': {
-        const params = PurchaseEmailSchema.parse(args);
-        const result = await client.purchaseEmail(params.site, params.mailDomain);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      }
-
-      case 'get_email_status': {
-        const params = GetEmailStatusSchema.parse(args);
-        const result = await client.getEmailStatus(params.emailId);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      }
-
-      case 'cancel_email': {
-        const params = CancelEmailSchema.parse(args);
-        await client.cancelEmail(params.emailId);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: 'Email activation cancelled successfully',
-            },
-          ],
-        };
-      }
-
-      case 'reorder_email': {
-        const params = ReorderEmailSchema.parse(args);
-        const result = await client.reorderEmail(params.emailId);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      }
-
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
@@ -553,7 +326,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('SMS-Activate MCP server running...');
+  console.error('Grizzly SMS MCP server running...');
 }
 
 main().catch((error) => {

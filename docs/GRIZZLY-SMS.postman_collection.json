@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "ed51dbd4-c588-47ac-a61c-6ba27b776e9f",
-		"name": "SMS-ACTIVATE",
+		"name": "GRIZZLY-SMS",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "15603002"
 	},
@@ -12,12 +12,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://api.sms-activate.ae/stubs/handler_api.php?api_key={{SMS_ACTIVATE_API_KEY}}&action=getNumbersStatus",
+					"raw": "https://api.grizzlysms.com/stubs/handler_api.php?api_key={{GRIZZLY_SMS_API_KEY}}&action=getNumbersStatus",
 					"protocol": "https",
 					"host": [
 						"api",
-						"sms-activate",
-						"ae"
+						"grizzlysms",
+						"com"
 					],
 					"path": [
 						"stubs",
@@ -26,7 +26,7 @@
 					"query": [
 						{
 							"key": "api_key",
-							"value": "{{SMS_ACTIVATE_API_KEY}}"
+							"value": "{{GRIZZLY_SMS_API_KEY}}"
 						},
 						{
 							"key": "action",
@@ -52,12 +52,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://api.sms-activate.ae/stubs/handler_api.php?api_key={{SMS_ACTIVATE_API_KEY}}&action=getNumbersStatus",
+							"raw": "https://api.grizzlysms.com/stubs/handler_api.php?api_key={{GRIZZLY_SMS_API_KEY}}&action=getNumbersStatus",
 							"protocol": "https",
 							"host": [
 								"api",
-								"sms-activate",
-								"ae"
+								"grizzlysms",
+								"com"
 							],
 							"path": [
 								"stubs",
@@ -66,7 +66,7 @@
 							"query": [
 								{
 									"key": "api_key",
-									"value": "{{SMS_ACTIVATE_API_KEY}}"
+									"value": "{{GRIZZLY_SMS_API_KEY}}"
 								},
 								{
 									"key": "action",
@@ -145,12 +145,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://api.sms-activate.ae/stubs/handler_api.php?api_key={{SMS_ACTIVATE_API_KEY}}&action=getBalance",
+					"raw": "https://api.grizzlysms.com/stubs/handler_api.php?api_key={{GRIZZLY_SMS_API_KEY}}&action=getBalance",
 					"protocol": "https",
 					"host": [
 						"api",
-						"sms-activate",
-						"ae"
+						"grizzlysms",
+						"com"
 					],
 					"path": [
 						"stubs",
@@ -159,7 +159,7 @@
 					"query": [
 						{
 							"key": "api_key",
-							"value": "{{SMS_ACTIVATE_API_KEY}}"
+							"value": "{{GRIZZLY_SMS_API_KEY}}"
 						},
 						{
 							"key": "action",
@@ -175,12 +175,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://api.sms-activate.ae/stubs/handler_api.php?api_key={{SMS_ACTIVATE_API_KEY}}&action=getBalance",
+							"raw": "https://api.grizzlysms.com/stubs/handler_api.php?api_key={{GRIZZLY_SMS_API_KEY}}&action=getBalance",
 							"protocol": "https",
 							"host": [
 								"api",
-								"sms-activate",
-								"ae"
+								"grizzlysms",
+								"com"
 							],
 							"path": [
 								"stubs",
@@ -189,7 +189,7 @@
 							"query": [
 								{
 									"key": "api_key",
-									"value": "{{SMS_ACTIVATE_API_KEY}}"
+									"value": "{{GRIZZLY_SMS_API_KEY}}"
 								},
 								{
 									"key": "action",
@@ -258,12 +258,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://api.sms-activate.ae/stubs/handler_api.php?api_key={{SMS_ACTIVATE_API_KEY}}&action=getNumber&service=go&forward=0&country=33&maxPrice=maxPrice&activationType=0&language=",
+					"raw": "https://api.grizzlysms.com/stubs/handler_api.php?api_key={{GRIZZLY_SMS_API_KEY}}&action=getNumber&service=go&forward=0&country=33&maxPrice=maxPrice&activationType=0&language=",
 					"protocol": "https",
 					"host": [
 						"api",
-						"sms-activate",
-						"ae"
+						"grizzlysms",
+						"com"
 					],
 					"path": [
 						"stubs",
@@ -272,7 +272,7 @@
 					"query": [
 						{
 							"key": "api_key",
-							"value": "{{SMS_ACTIVATE_API_KEY}}"
+							"value": "{{GRIZZLY_SMS_API_KEY}}"
 						},
 						{
 							"key": "action",
@@ -338,12 +338,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://api.sms-activate.ae/stubs/handler_api.php?api_key={{SMS_ACTIVATE_API_KEY}}&action=getNumber&service=go&forward=0&country=6&maxPrice=maxPrice&activationType=0&language=",
+							"raw": "https://api.grizzlysms.com/stubs/handler_api.php?api_key={{GRIZZLY_SMS_API_KEY}}&action=getNumber&service=go&forward=0&country=6&maxPrice=maxPrice&activationType=0&language=",
 							"protocol": "https",
 							"host": [
 								"api",
-								"sms-activate",
-								"ae"
+								"grizzlysms",
+								"com"
 							],
 							"path": [
 								"stubs",
@@ -352,7 +352,7 @@
 							"query": [
 								{
 									"key": "api_key",
-									"value": "{{SMS_ACTIVATE_API_KEY}}"
+									"value": "{{GRIZZLY_SMS_API_KEY}}"
 								},
 								{
 									"key": "action",
@@ -470,12 +470,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://api.sms-activate.ae/stubs/handler_api.php?api_key={{SMS_ACTIVATE_API_KEY}}&action=getOperators",
+					"raw": "https://api.grizzlysms.com/stubs/handler_api.php?api_key={{GRIZZLY_SMS_API_KEY}}&action=getOperators",
 					"protocol": "https",
 					"host": [
 						"api",
-						"sms-activate",
-						"ae"
+						"grizzlysms",
+						"com"
 					],
 					"path": [
 						"stubs",
@@ -484,7 +484,7 @@
 					"query": [
 						{
 							"key": "api_key",
-							"value": "{{SMS_ACTIVATE_API_KEY}}"
+							"value": "{{GRIZZLY_SMS_API_KEY}}"
 						},
 						{
 							"key": "action",
@@ -505,12 +505,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://api.sms-activate.ae/stubs/handler_api.php?api_key={{SMS_ACTIVATE_API_KEY}}&action=getOperators",
+							"raw": "https://api.grizzlysms.com/stubs/handler_api.php?api_key={{GRIZZLY_SMS_API_KEY}}&action=getOperators",
 							"protocol": "https",
 							"host": [
 								"api",
-								"sms-activate",
-								"ae"
+								"grizzlysms",
+								"com"
 							],
 							"path": [
 								"stubs",
@@ -519,7 +519,7 @@
 							"query": [
 								{
 									"key": "api_key",
-									"value": "{{SMS_ACTIVATE_API_KEY}}"
+									"value": "{{GRIZZLY_SMS_API_KEY}}"
 								},
 								{
 									"key": "action",
@@ -600,12 +600,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://api.sms-activate.ae/stubs/handler_api.php?api_key={{SMS_ACTIVATE_API_KEY}}&action=getTopCountriesByServiceRank&service=go",
+					"raw": "https://api.grizzlysms.com/stubs/handler_api.php?api_key={{GRIZZLY_SMS_API_KEY}}&action=getTopCountriesByServiceRank&service=go",
 					"protocol": "https",
 					"host": [
 						"api",
-						"sms-activate",
-						"ae"
+						"grizzlysms",
+						"com"
 					],
 					"path": [
 						"stubs",
@@ -614,7 +614,7 @@
 					"query": [
 						{
 							"key": "api_key",
-							"value": "{{SMS_ACTIVATE_API_KEY}}"
+							"value": "{{GRIZZLY_SMS_API_KEY}}"
 						},
 						{
 							"key": "action",
@@ -639,12 +639,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://api.sms-activate.ae/stubs/handler_api.php?api_key={{SMS_ACTIVATE_API_KEY}}&action=getTopCountriesByServiceRank&service=go",
+							"raw": "https://api.grizzlysms.com/stubs/handler_api.php?api_key={{GRIZZLY_SMS_API_KEY}}&action=getTopCountriesByServiceRank&service=go",
 							"protocol": "https",
 							"host": [
 								"api",
-								"sms-activate",
-								"ae"
+								"grizzlysms",
+								"com"
 							],
 							"path": [
 								"stubs",
@@ -653,7 +653,7 @@
 							"query": [
 								{
 									"key": "api_key",
-									"value": "{{SMS_ACTIVATE_API_KEY}}"
+									"value": "{{GRIZZLY_SMS_API_KEY}}"
 								},
 								{
 									"key": "action",
@@ -738,12 +738,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://api.sms-activate.ae/stubs/handler_api.php?api_key={{SMS_ACTIVATE_API_KEY}}&action=getActiveActivations",
+					"raw": "https://api.grizzlysms.com/stubs/handler_api.php?api_key={{GRIZZLY_SMS_API_KEY}}&action=getActiveActivations",
 					"protocol": "https",
 					"host": [
 						"api",
-						"sms-activate",
-						"ae"
+						"grizzlysms",
+						"com"
 					],
 					"path": [
 						"stubs",
@@ -752,7 +752,7 @@
 					"query": [
 						{
 							"key": "api_key",
-							"value": "{{SMS_ACTIVATE_API_KEY}}"
+							"value": "{{GRIZZLY_SMS_API_KEY}}"
 						},
 						{
 							"key": "action",
@@ -769,12 +769,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://api.sms-activate.ae/stubs/handler_api.php?api_key={{SMS_ACTIVATE_API_KEY}}&action=setStatus&status=6&id=$id",
+					"raw": "https://api.grizzlysms.com/stubs/handler_api.php?api_key={{GRIZZLY_SMS_API_KEY}}&action=setStatus&status=6&id=$id",
 					"protocol": "https",
 					"host": [
 						"api",
-						"sms-activate",
-						"ae"
+						"grizzlysms",
+						"com"
 					],
 					"path": [
 						"stubs",
@@ -783,7 +783,7 @@
 					"query": [
 						{
 							"key": "api_key",
-							"value": "{{SMS_ACTIVATE_API_KEY}}"
+							"value": "{{GRIZZLY_SMS_API_KEY}}"
 						},
 						{
 							"key": "action",
@@ -814,12 +814,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://api.sms-activate.ae/stubs/handler_api.php?api_key={{SMS_ACTIVATE_API_KEY}}&action=getStatus&id=3936051180",
+					"raw": "https://api.grizzlysms.com/stubs/handler_api.php?api_key={{GRIZZLY_SMS_API_KEY}}&action=getStatus&id=3936051180",
 					"protocol": "https",
 					"host": [
 						"api",
-						"sms-activate",
-						"ae"
+						"grizzlysms",
+						"com"
 					],
 					"path": [
 						"stubs",
@@ -828,7 +828,7 @@
 					"query": [
 						{
 							"key": "api_key",
-							"value": "{{SMS_ACTIVATE_API_KEY}}"
+							"value": "{{GRIZZLY_SMS_API_KEY}}"
 						},
 						{
 							"key": "action",
@@ -850,12 +850,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://api.sms-activate.ae/stubs/handler_api.php?api_key={{SMS_ACTIVATE_API_KEY}}&action=getHistory&start=1723063870&end=1754599872&offset=0&limit=100",
+					"raw": "https://api.grizzlysms.com/stubs/handler_api.php?api_key={{GRIZZLY_SMS_API_KEY}}&action=getHistory&start=1723063870&end=1754599872&offset=0&limit=100",
 					"protocol": "https",
 					"host": [
 						"api",
-						"sms-activate",
-						"ae"
+						"grizzlysms",
+						"com"
 					],
 					"path": [
 						"stubs",
@@ -864,7 +864,7 @@
 					"query": [
 						{
 							"key": "api_key",
-							"value": "{{SMS_ACTIVATE_API_KEY}}"
+							"value": "{{GRIZZLY_SMS_API_KEY}}"
 						},
 						{
 							"key": "action",
@@ -894,7 +894,7 @@
 	],
 	"variable": [
 		{
-			"key": "SMS_ACTIVATE_API_KEY",
+			"key": "GRIZZLY_SMS_API_KEY",
 			"value": "07ef00fff491edc280fAd4be487d74b8",
 			"type": "default"
 		}

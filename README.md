@@ -1,4 +1,4 @@
-# SMS-Activate MCP Server
+# Grizzly SMS MCP Server
 
 [English](#english) | [Русский](#russian)
 
@@ -7,29 +7,28 @@
 <a name="english"></a>
 ## English
 
-MCP (Model Context Protocol) server for integrating with [SMS-Activate](https://sms-activate.io/) service - a platform for receiving SMS verification codes and temporary email addresses.
+MCP (Model Context Protocol) server for integrating with [Grizzly SMS](https://grizzlysms.com/) service - a platform for receiving SMS verification codes and virtual phone numbers.
 
 ### Features
 
 - 📱 **Phone Number Operations**: Request virtual numbers, check SMS codes, manage activations
-- 📧 **Email Activations**: Purchase temporary emails, check inbox, manage email sessions
-- 💰 **Account Management**: Check balance, view activation history
-- 🌍 **Service Information**: Get available countries, operators, services, and prices
+- 💰 **Account Management**: Check balance, view service information
+- 🌍 **Service Information**: Get available countries, services, and prices
 - 🔄 **Real-time Status**: Track activation status and retrieve verification codes
 
 ### Prerequisites
 
 - Node.js 18 or higher
 - npm or yarn
-- SMS-Activate API key (get it from [sms-activate.io](https://sms-activate.io/))
+- Grizzly SMS API key (get it from [grizzlysms.com](https://grizzlysms.com/))
 
 ### Installation
 
 #### 1. Clone the repository
 
 ```bash
-git clone https://github.com/momentum100/sms-activate-mcp.git
-cd sms-activate-mcp
+git clone <repository-url>
+cd mcp-grizzly-sms
 ```
 
 #### 2. Install dependencies
@@ -43,8 +42,8 @@ npm install
 Create a `.env` file in the project root:
 
 ```env
-SMS_ACTIVATE_API_KEY=your_api_key_here
-SMS_ACTIVATE_BASE_URL=https://api.sms-activate.ae
+GRIZZLY_SMS_API_KEY=your_api_key_here
+GRIZZLY_SMS_BASE_URL=https://api.grizzlysms.com
 ```
 
 #### 4. Build the project
@@ -56,24 +55,25 @@ npm run build
 #### 5. Test the server
 
 ```bash
-npm start
+npm test
 ```
 
-### Configuration for Claude Desktop
+### Configuration for Cursor
 
-Add this configuration to your Claude Desktop settings:
+Add this configuration to your Cursor settings:
 
 #### Windows
-Location: `%APPDATA%\Claude\claude_desktop_config.json`
+Location: `%APPDATA%\Cursor\User\globalStorage\mcp.json`
 
 ```json
 {
   "mcpServers": {
-    "sms-activate": {
+    "grizzly-sms": {
       "command": "node",
-      "args": ["C:/path/to/sms-activate-mcp/dist/index.js"],
+      "args": ["C:/path/to/mcp-grizzly-sms/dist/index.js"],
       "env": {
-        "SMS_ACTIVATE_API_KEY": "your_api_key_here"
+        "GRIZZLY_SMS_API_KEY": "your_api_key_here",
+        "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
       }
     }
   }
@@ -81,16 +81,17 @@ Location: `%APPDATA%\Claude\claude_desktop_config.json`
 ```
 
 #### macOS
-Location: `~/Library/Application Support/Claude/claude_desktop_config.json`
+Location: `~/Library/Application Support/Cursor/User/globalStorage/mcp.json`
 
 ```json
 {
   "mcpServers": {
-    "sms-activate": {
+    "grizzly-sms": {
       "command": "node",
-      "args": ["/Users/username/path/to/sms-activate-mcp/dist/index.js"],
+      "args": ["/Users/username/path/to/mcp-grizzly-sms/dist/index.js"],
       "env": {
-        "SMS_ACTIVATE_API_KEY": "your_api_key_here"
+        "GRIZZLY_SMS_API_KEY": "your_api_key_here",
+        "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
       }
     }
   }
@@ -98,16 +99,17 @@ Location: `~/Library/Application Support/Claude/claude_desktop_config.json`
 ```
 
 #### Linux
-Location: `~/.config/Claude/claude_desktop_config.json`
+Location: `~/.config/Cursor/User/globalStorage/mcp.json`
 
 ```json
 {
   "mcpServers": {
-    "sms-activate": {
+    "grizzly-sms": {
       "command": "node",
-      "args": ["/home/username/path/to/sms-activate-mcp/dist/index.js"],
+      "args": ["/home/username/path/to/mcp-grizzly-sms/dist/index.js"],
       "env": {
-        "SMS_ACTIVATE_API_KEY": "your_api_key_here"
+        "GRIZZLY_SMS_API_KEY": "your_api_key_here",
+        "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
       }
     }
   }
@@ -119,50 +121,29 @@ Location: `~/.config/Claude/claude_desktop_config.json`
 #### Phone Number Operations
 
 - **`request_number`** - Request a virtual phone number for SMS verification
-  - `service` (required): Service code or name (e.g., "tg" or "Telegram")
-  - `country` (optional): Country ID (0=Russia, 1=Ukraine, etc.)
-  - `operator` (optional): Mobile operator
-  - `forward` (optional): Enable forwarding (0 or 1)
-  - `ref` (optional): Referral code
+  - `service` (required): Service code or name (e.g., "tg" or "Telegram", "wa" or "WhatsApp")
+  - `country` (optional): Country ID or "*" or "any" for any country
+  - `maxPrice` (optional): Maximum price you're willing to pay
+  - `providerIds` (optional): Comma-separated list of provider IDs to include
+  - `exceptProviderIds` (optional): Comma-separated list of provider IDs to exclude
+  - `version` (optional): API version - "v1" (plain text) or "v2" (JSON with details)
 
 - **`get_status`** - Check activation status and retrieve SMS code
   - `activationId` (required): The activation ID from request_number
 
 - **`set_status`** - Change activation status
   - `activationId` (required): The activation ID
-  - `status` (required): Status code (1=resend, 3=new code, 6=complete, 8=cancel)
-
-- **`get_active_activations`** - Get list of all active activations
-
-- **`get_activation_history`** - View activation history
-
-#### Email Operations
-
-- **`purchase_email`** - Purchase a temporary email address
-  - `site` (required): Target website (e.g., "telegram.com")
-  - `mailDomain` (required): Email domain (e.g., "gmail.com")
-
-- **`get_email_status`** - Check email activation status and inbox
-  - `emailId` (required): Email activation ID
-
-- **`cancel_email`** - Cancel email activation
-  - `emailId` (required): Email activation ID
-
-- **`reorder_email`** - Reorder the same email activation
-  - `emailId` (required): Email activation ID
-
-- **`get_email_domains`** - Get available email domains for a website
-  - `site` (optional): Target website
+  - `status` (required): Status code (1=ready, 3=request new code, 6=complete, 8 or -1=cancel)
 
 #### Information Tools
 
 - **`get_balance`** - Check account balance
-- **`get_numbers_status`** - Get available phone numbers count
 - **`get_countries`** - Get list of all available countries
 - **`get_services`** - Get list of all available services
-- **`get_operators`** - Get operators for a specific country
-- **`get_prices`** - Get service prices
-- **`get_top_countries`** - Get top countries for a specific service
+- **`get_prices`** - Get service prices by country
+  - `service` (optional): Service code
+  - `country` (optional): Country ID or "*" for any country
+  - `version` (optional): API version - "v1", "v2", or "v3"
 
 ### Common Service Codes
 
@@ -172,27 +153,26 @@ Location: `~/.config/Claude/claude_desktop_config.json`
 | `wa` | WhatsApp |
 | `ig` | Instagram |
 | `fb` | Facebook |
-| `go` | Google |
+| `go` | Google, Gmail, Youtube |
 | `tw` | Twitter |
 | `vi` | Viber |
-| `ub` | Uber |
 | `ot` | Any other |
 
 ### Common Country IDs
 
 | ID | Country |
 |----|---------|
-| 0 | Russia |
 | 1 | Ukraine |
 | 2 | Kazakhstan |
 | 3 | China |
 | 4 | Philippines |
-| 5 | Myanmar |
 | 6 | Indonesia |
 | 10 | Vietnam |
 | 12 | USA (Virtual) |
 | 16 | England |
 | 22 | India |
+| 73 | Brazil |
+| 187 | USA |
 
 ### Development
 
@@ -205,12 +185,19 @@ npm run build
 
 # Start the server
 npm start
+
+# Run tests
+npm test
+
+# Test API methods
+npm run test:api
 ```
 
 ### Troubleshooting
 
-- **"SMS_ACTIVATE_API_KEY environment variable is required"** - Create `.env` file with your API key
-- **"BAD_KEY" or "ERROR_SQL"** - Verify API key and account balance
+- **"GRIZZLY_SMS_API_KEY environment variable is required"** - Create `.env` file with your API key
+- **"BAD_KEY"** - Verify API key is correct
+- **"NO_BALANCE"** - Check account balance on [grizzlysms.com](https://grizzlysms.com/)
 - **Connection errors** - Check internet connection and API availability
 
 ---
@@ -218,29 +205,28 @@ npm start
 <a name="russian"></a>
 ## Русский
 
-MCP (Model Context Protocol) сервер для интеграции с сервисом [SMS-Activate](https://sms-activate.io/) - платформой для получения SMS кодов верификации и временных email адресов.
+MCP (Model Context Protocol) сервер для интеграции с сервисом [Grizzly SMS](https://grizzlysms.com/) - платформой для получения SMS кодов верификации и виртуальных номеров телефонов.
 
 ### Возможности
 
 - 📱 **Операции с номерами**: Запрос виртуальных номеров, проверка SMS кодов, управление активациями
-- 📧 **Email активации**: Покупка временных email адресов, проверка входящих, управление сессиями
-- 💰 **Управление аккаунтом**: Проверка баланса, просмотр истории активаций
-- 🌍 **Информация о сервисах**: Получение доступных стран, операторов, сервисов и цен
+- 💰 **Управление аккаунтом**: Проверка баланса, просмотр информации о сервисах
+- 🌍 **Информация о сервисах**: Получение доступных стран, сервисов и цен
 - 🔄 **Статус в реальном времени**: Отслеживание статуса активации и получение кодов верификации
 
 ### Требования
 
 - Node.js 18 или выше
 - npm или yarn
-- API ключ SMS-Activate (получите на [sms-activate.io](https://sms-activate.io/))
+- API ключ Grizzly SMS (получите на [grizzlysms.com](https://grizzlysms.com/))
 
 ### Установка
 
 #### 1. Клонирование репозитория
 
 ```bash
-git clone https://github.com/momentum100/sms-activate-mcp.git
-cd sms-activate-mcp
+git clone <repository-url>
+cd mcp-grizzly-sms
 ```
 
 #### 2. Установка зависимостей
@@ -254,8 +240,8 @@ npm install
 Создайте файл `.env` в корне проекта:
 
 ```env
-SMS_ACTIVATE_API_KEY=ваш_api_ключ
-SMS_ACTIVATE_BASE_URL=https://api.sms-activate.ae
+GRIZZLY_SMS_API_KEY=ваш_api_ключ
+GRIZZLY_SMS_BASE_URL=https://api.grizzlysms.com
 ```
 
 #### 4. Сборка проекта
@@ -267,24 +253,25 @@ npm run build
 #### 5. Тестирование сервера
 
 ```bash
-npm start
+npm test
 ```
 
-### Конфигурация для Claude Desktop
+### Конфигурация для Cursor
 
-Добавьте эту конфигурацию в настройки Claude Desktop:
+Добавьте эту конфигурацию в настройки Cursor:
 
 #### Windows
-Расположение: `%APPDATA%\Claude\claude_desktop_config.json`
+Расположение: `%APPDATA%\Cursor\User\globalStorage\mcp.json`
 
 ```json
 {
   "mcpServers": {
-    "sms-activate": {
+    "grizzly-sms": {
       "command": "node",
-      "args": ["C:/путь/к/sms-activate-mcp/dist/index.js"],
+      "args": ["C:/путь/к/mcp-grizzly-sms/dist/index.js"],
       "env": {
-        "SMS_ACTIVATE_API_KEY": "ваш_api_ключ"
+        "GRIZZLY_SMS_API_KEY": "ваш_api_ключ",
+        "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
       }
     }
   }
@@ -292,16 +279,17 @@ npm start
 ```
 
 #### macOS
-Расположение: `~/Library/Application Support/Claude/claude_desktop_config.json`
+Расположение: `~/Library/Application Support/Cursor/User/globalStorage/mcp.json`
 
 ```json
 {
   "mcpServers": {
-    "sms-activate": {
+    "grizzly-sms": {
       "command": "node",
-      "args": ["/Users/username/путь/к/sms-activate-mcp/dist/index.js"],
+      "args": ["/Users/username/путь/к/mcp-grizzly-sms/dist/index.js"],
       "env": {
-        "SMS_ACTIVATE_API_KEY": "ваш_api_ключ"
+        "GRIZZLY_SMS_API_KEY": "ваш_api_ключ",
+        "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
       }
     }
   }
@@ -309,16 +297,17 @@ npm start
 ```
 
 #### Linux
-Расположение: `~/.config/Claude/claude_desktop_config.json`
+Расположение: `~/.config/Cursor/User/globalStorage/mcp.json`
 
 ```json
 {
   "mcpServers": {
-    "sms-activate": {
+    "grizzly-sms": {
       "command": "node",
-      "args": ["/home/username/путь/к/sms-activate-mcp/dist/index.js"],
+      "args": ["/home/username/путь/к/mcp-grizzly-sms/dist/index.js"],
       "env": {
-        "SMS_ACTIVATE_API_KEY": "ваш_api_ключ"
+        "GRIZZLY_SMS_API_KEY": "ваш_api_ключ",
+        "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
       }
     }
   }
@@ -330,50 +319,29 @@ npm start
 #### Операции с телефонными номерами
 
 - **`request_number`** - Запрос виртуального номера телефона для SMS верификации
-  - `service` (обязательный): Код или название сервиса (например, "tg" или "Telegram")
-  - `country` (опциональный): ID страны (0=Россия, 1=Украина и т.д.)
-  - `operator` (опциональный): Мобильный оператор
-  - `forward` (опциональный): Включить переадресацию (0 или 1)
-  - `ref` (опциональный): Реферальный код
+  - `service` (обязательный): Код или название сервиса (например, "tg" или "Telegram", "wa" или "WhatsApp")
+  - `country` (опциональный): ID страны или "*" или "any" для любой страны
+  - `maxPrice` (опциональный): Максимальная цена, которую вы готовы заплатить
+  - `providerIds` (опциональный): Список ID провайдеров через запятую для включения
+  - `exceptProviderIds` (опциональный): Список ID провайдеров через запятую для исключения
+  - `version` (опциональный): Версия API - "v1" (обычный текст) или "v2" (JSON с деталями)
 
 - **`get_status`** - Проверка статуса активации и получение SMS кода
   - `activationId` (обязательный): ID активации из request_number
 
 - **`set_status`** - Изменение статуса активации
   - `activationId` (обязательный): ID активации
-  - `status` (обязательный): Код статуса (1=переотправить, 3=новый код, 6=завершить, 8=отменить)
-
-- **`get_active_activations`** - Получить список всех активных активаций
-
-- **`get_activation_history`** - Просмотр истории активаций
-
-#### Операции с Email
-
-- **`purchase_email`** - Покупка временного email адреса
-  - `site` (обязательный): Целевой сайт (например, "telegram.com")
-  - `mailDomain` (обязательный): Email домен (например, "gmail.com")
-
-- **`get_email_status`** - Проверка статуса email активации и входящих сообщений
-  - `emailId` (обязательный): ID email активации
-
-- **`cancel_email`** - Отмена email активации
-  - `emailId` (обязательный): ID email активации
-
-- **`reorder_email`** - Повторный заказ той же email активации
-  - `emailId` (обязательный): ID email активации
-
-- **`get_email_domains`** - Получить доступные email домены для сайта
-  - `site` (опциональный): Целевой сайт
+  - `status` (обязательный): Код статуса (1=готов, 3=новый код, 6=завершить, 8 или -1=отменить)
 
 #### Информационные инструменты
 
 - **`get_balance`** - Проверка баланса аккаунта
-- **`get_numbers_status`** - Получить количество доступных номеров
 - **`get_countries`** - Получить список всех доступных стран
 - **`get_services`** - Получить список всех доступных сервисов
-- **`get_operators`** - Получить операторов для конкретной страны
-- **`get_prices`** - Получить цены на сервисы
-- **`get_top_countries`** - Получить топ стран для конкретного сервиса
+- **`get_prices`** - Получить цены на сервисы по странам
+  - `service` (опциональный): Код сервиса
+  - `country` (опциональный): ID страны или "*" для любой страны
+  - `version` (опциональный): Версия API - "v1", "v2", или "v3"
 
 ### Основные коды сервисов
 
@@ -383,27 +351,26 @@ npm start
 | `wa` | WhatsApp |
 | `ig` | Instagram |
 | `fb` | Facebook |
-| `go` | Google |
+| `go` | Google, Gmail, Youtube |
 | `tw` | Twitter |
 | `vi` | Viber |
-| `ub` | Uber |
 | `ot` | Любой другой |
 
 ### Основные ID стран
 
 | ID | Страна |
 |----|---------|
-| 0 | Россия |
 | 1 | Украина |
 | 2 | Казахстан |
 | 3 | Китай |
 | 4 | Филиппины |
-| 5 | Мьянма |
 | 6 | Индонезия |
 | 10 | Вьетнам |
 | 12 | США (Виртуальный) |
 | 16 | Англия |
 | 22 | Индия |
+| 73 | Бразилия |
+| 187 | США |
 
 ### Разработка
 
@@ -416,53 +383,58 @@ npm run build
 
 # Запуск сервера
 npm start
+
+# Запуск тестов
+npm test
+
+# Тестирование методов API
+npm run test:api
 ```
 
 ### Решение проблем
 
-- **"SMS_ACTIVATE_API_KEY environment variable is required"** - Создайте файл `.env` с вашим API ключом
-- **"BAD_KEY" или "ERROR_SQL"** - Проверьте API ключ и баланс аккаунта
+- **"GRIZZLY_SMS_API_KEY environment variable is required"** - Создайте файл `.env` с вашим API ключом
+- **"BAD_KEY"** - Проверьте правильность API ключа
+- **"NO_BALANCE"** - Проверьте баланс аккаунта на [grizzlysms.com](https://grizzlysms.com/)
 - **Ошибки подключения** - Проверьте интернет-соединение и доступность API
 
 ---
 
-## Project Structure
+## Структура проекта
 
 ```
-sms-activate-mcp/
+mcp-grizzly-sms/
 ├── src/
 │   ├── index.ts              # Main MCP server / Основной MCP сервер
-│   └── sms-activate-client.ts # SMS-Activate API client / Клиент API
+│   └── grizzly-sms-client.ts # Grizzly SMS API client / Клиент API
 ├── dist/                     # Compiled JavaScript / Скомпилированный код
 ├── docs/                     # API documentation / Документация API
-│   ├── SMS-ACTIVATE.postman_collection.json
-│   ├── api-protocol-for-working-with-sms-activate.json
+│   ├── GRIZZLY-SMS.postman_collection.json
+│   ├── api-protocol-for-working-with-grizzly-sms.json
 │   └── services.json
+├── test-mcp.js              # Basic test script / Базовый тестовый скрипт
+├── test-api-methods.js      # API methods test script / Скрипт тестирования методов API
 ├── package.json
 ├── tsconfig.json
-├── .env.example
+├── claude-desktop-config.json
 └── README.md
 ```
 
-## Support / Поддержка
+## Поддержка / Support
 
-- **Issues**: [GitHub Issues](https://github.com/momentum100/sms-activate-mcp/issues)
-- **SMS-Activate Support**: [sms-activate.io/support](https://sms-activate.io/support)
-- **API Documentation**: [sms-activate.io/api2](https://sms-activate.io/api2)
+- **API Documentation**: [grizzlysms.com/ru/docs](https://grizzlysms.com/ru/docs)
+- **Grizzly SMS Website**: [grizzlysms.com](https://grizzlysms.com/)
+- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
 
-## License
+## Лицензия / License
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-## Contributing
+## Автор / Author
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Created for Grizzly SMS integration
 
-## Author
+## Благодарности / Acknowledgments
 
-Created by [momentum100](https://github.com/momentum100)
-
-## Acknowledgments
-
-- [SMS-Activate](https://sms-activate.io/) for providing the SMS verification service
+- [Grizzly SMS](https://grizzlysms.com/) for providing the SMS verification service
 - [Anthropic](https://anthropic.com/) for the MCP protocol specification

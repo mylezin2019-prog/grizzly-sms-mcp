@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "API protocol for working with SMS-Activate",
+    "title": "API protocol for working with Grizzly SMS",
     "version": "2.0"
   },
   "servers": [
