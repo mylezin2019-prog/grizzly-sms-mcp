@@ -115,6 +115,107 @@ Location: `~/.config/Cursor/User/globalStorage/mcp.json`
   }
 }
 ```
+### Configuration for OpenClaw 🚀
+
+Add this configuration to your OpenClaw settings:
+
+#### Windows
+Location: `%APPDATA%\.openclaw\openclaw.json`
+
+```json
+{
+  "agents": {
+    "main": {
+      "model": "anthropic:claude-sonnet-4-20250514",
+      "mcpServers": {
+        "grizzly-sms": {
+          "command": "node",
+          "args": ["C:/absolute/path/to/grizzly-sms-mcp/dist/index.js"],
+          "env": {
+            "GRIZZLY_SMS_API_KEY": "your_api_key_here",
+            "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+#### macOS
+Location: `~/.openclaw/openclaw.json`
+
+```json
+{
+  "agents": {
+    "main": {
+      "model": "anthropic:claude-sonnet-4-20250514",
+      "mcpServers": {
+        "grizzly-sms": {
+          "command": "node",
+          "args": ["/Users/username/absolute/path/to/grizzly-sms-mcp/dist/index.js"],
+          "env": {
+            "GRIZZLY_SMS_API_KEY": "your_api_key_here",
+            "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+#### Linux
+Location: `~/.openclaw/openclaw.json`
+
+```json
+{
+  "agents": {
+    "main": {
+      "model": "anthropic:claude-sonnet-4-20250514",
+      "mcpServers": {
+        "grizzly-sms": {
+          "command": "node",
+          "args": ["/home/username/absolute/path/to/grizzly-sms-mcp/dist/index.js"],
+          "env": {
+            "GRIZZLY_SMS_API_KEY": "your_api_key_here",
+            "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+> ⚠️ **Important notes for OpenClaw:**
+> - Always use **absolute paths** (not `~` or relative paths)
+> - Replace the path in `args` with your actual path to `dist/index.js`
+> - Restart OpenClaw Gateway after config changes: `openclaw gateway restart`
+> - Environment variables are scoped to the MCP server only
+
+#### Quick Setup for OpenClaw:
+
+1. **Install dependencies and build:**
+   ```bash
+   npm install
+   npm run build
+   ```
+
+2. **Add configuration** to your `openclaw.json` (use absolute paths!)
+
+3. **Restart Gateway:**
+   ```bash
+   openclaw gateway restart
+   ```
+
+4. **Check logs:**
+   ```bash
+   openclaw logs --tail 20
+   ```
+
+You should see: `MCP server "grizzly-sms" connected`
+```
 
 ### Available Tools
 
@@ -312,6 +413,107 @@ npm test
     }
   }
 }
+```
+### Конфигурация для OpenClaw 🚀
+
+Добавьте эту конфигурацию в настройки OpenClaw:
+
+#### Windows
+Расположение: `%APPDATA%\.openclaw\openclaw.json`
+
+```json
+{
+  "agents": {
+    "main": {
+      "model": "anthropic:claude-sonnet-4-20250514",
+      "mcpServers": {
+        "grizzly-sms": {
+          "command": "node",
+          "args": ["C:/absolute/path/to/grizzly-sms-mcp/dist/index.js"],
+          "env": {
+            "GRIZZLY_SMS_API_KEY": "ваш_api_ключ",
+            "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+#### macOS
+Расположение: `~/.openclaw/openclaw.json`
+
+```json
+{
+  "agents": {
+    "main": {
+      "model": "anthropic:claude-sonnet-4-20250514",
+      "mcpServers": {
+        "grizzly-sms": {
+          "command": "node",
+          "args": ["/Users/username/absolute/path/to/grizzly-sms-mcp/dist/index.js"],
+          "env": {
+            "GRIZZLY_SMS_API_KEY": "ваш_api_ключ",
+            "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+#### Linux
+Расположение: `~/.openclaw/openclaw.json`
+
+```json
+{
+  "agents": {
+    "main": {
+      "model": "anthropic:claude-sonnet-4-20250514",
+      "mcpServers": {
+        "grizzly-sms": {
+          "command": "node",
+          "args": ["/home/username/absolute/path/to/grizzly-sms-mcp/dist/index.js"],
+          "env": {
+            "GRIZZLY_SMS_API_KEY": "ваш_api_ключ",
+            "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+> ⚠️ **Важные замечания для OpenClaw:**
+> - Всегда используйте **абсолютные пути** (не `~` или относительные пути)
+> - Замените путь в `args` на ваш реальный путь к `dist/index.js`
+> - Перезапустите Gateway после изменений: `openclaw gateway restart`
+> - Переменные окружения применяются только к MCP серверу
+
+### Быстрая настройка для OpenClaw:
+
+1. **Установите зависимости и соберите проект:**
+   ```bash
+   npm install
+   npm run build
+   ```
+
+2. **Добавьте конфигурацию** в ваш `openclaw.json` (используйте абсолютные пути!)
+
+3. **Перезапустите Gateway:**
+   ```bash
+   openclaw gateway restart
+   ```
+
+4. **Проверьте логи:**
+   ```bash
+   openclaw logs --tail 20
+   ```
+
+Должно появиться: `MCP server "grizzly-sms" connected`
 ```
 
 ### Доступные инструменты
