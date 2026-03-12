@@ -1,5 +1,7 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { createServer } from 'node:http';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
@@ -323,10 +325,55 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
   }
 });
 
+async function readBody(req: import('node:http').IncomingMessage): Promise<unknown> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of req) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+  const raw = Buffer.concat(chunks).toString('utf-8');
+  if (!raw) return undefined;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return undefined;
+  }
+}
+
 async function main() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error('Grizzly SMS MCP server running...');
+  const transportMode = process.env.MCP_TRANSPORT || 'stdio';
+
+  if (transportMode === 'http') {
+    const port = parseInt(process.env.MCP_PORT || '3000', 10);
+    const transport = new StreamableHTTPServerTransport();
+    await server.connect(transport);
+
+    const httpServer = createServer(async (req, res) => {
+      if (req.url && !req.url.startsWith('/mcp') && req.url !== '/' && !req.url.startsWith('/?')) {
+        res.statusCode = 404;
+        res.end();
+        return;
+      }
+      try {
+        let parsedBody: unknown;
+        if (req.method === 'POST') {
+          parsedBody = await readBody(req);
+        }
+        await transport.handleRequest(req as any, res, parsedBody);
+      } catch (err) {
+        console.error('Request error:', err);
+        res.statusCode = 500;
+        res.end();
+      }
+    });
+
+    httpServer.listen(port, '0.0.0.0', () => {
+      console.error(`Grizzly SMS MCP server listening on http://0.0.0.0:${port}/mcp`);
+    });
+  } else {
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+    console.error('Grizzly SMS MCP server running (stdio)...');
+  }
 }
 
 main().catch((error) => {
