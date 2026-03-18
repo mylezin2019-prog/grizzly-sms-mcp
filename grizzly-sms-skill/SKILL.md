@@ -1,50 +1,40 @@
 ---
 name: grizzly_sms
-description: SMS verification and virtual phone numbers via Grizzly SMS MCP
+description: SMS verification and virtual phone numbers via Grizzly SMS API
+metadata: {"openclaw":{"primaryEnv":"GRIZZLY_SMS_API_KEY"}}
 ---
 
-# Grizzly SMS MCP Skill
+# Grizzly SMS Skill
 
-Use this skill when the user needs:
-- SMS verification codes
-- Virtual phone numbers for Telegram, WhatsApp, Instagram, etc.
-- Balance check or top-up instructions
-- Service prices, countries, or available services
+Use this skill when the user needs: SMS verification, virtual numbers (Uber, Telegram, WhatsApp, etc.), balance, prices, countries, services.
 
-## Prerequisites
+## IMPORTANT: How to Call
 
-The **grizzly-sms** MCP server must be configured in OpenClaw. User needs an API key from [grizzlysms.com](https://grizzlysms.com/).
+There is NO tool named grizzly_sms.get_services(). You MUST use the **exec** tool to run the script. Example:
 
-## MCP Tools Available
+```
+exec(command="node {baseDir}/scripts/grizzly-cli.js get_services", host="gateway")
+```
 
-When grizzly-sms is connected, use these tools:
+OpenClaw replaces {baseDir} with the skill folder path. If not resolved, use the path from skills.load.extraDirs (e.g. /Users/sitis/Desktop/Grizzly-MCP/grizzly-sms-mcp/grizzly-sms-skill).
 
-| Tool | Purpose |
-|------|---------|
-| `get_balance` | Check account balance |
-| `request_number` | Request virtual number (service required: tg, wa, ig, etc.) |
-| `get_status` | Get activation status and SMS code |
-| `set_status` | Change status: 1=ready, 3=new code, 6=complete, 8=cancel |
-| `get_crypto_wallet` | Get USDT TRC-20 address for balance top-up |
-| `get_prices` | Get service prices by country |
-| `get_countries` | List available countries |
-| `get_services` | List available services |
+## Commands (run via exec)
 
-## Common Service Codes
+| What to do | Exec command |
+|------------|--------------|
+| List services (find Uber) | `node {baseDir}/scripts/grizzly-cli.js get_services` |
+| List countries (Brazil=73) | `node {baseDir}/scripts/grizzly-cli.js get_countries` |
+| Check balance | `node {baseDir}/scripts/grizzly-cli.js get_balance` |
+| Request number | `node {baseDir}/scripts/grizzly-cli.js request_number ub 73` |
+| Get SMS code | `node {baseDir}/scripts/grizzly-cli.js get_status <activationId>` |
+| Complete activation | `node {baseDir}/scripts/grizzly-cli.js set_status <activationId> 6` |
 
-- `tg` - Telegram
-- `wa` - WhatsApp
-- `ig` - Instagram
-- `fb` - Facebook
-- `go` - Google, Gmail, Youtube
+## Workflow: Uber in Brazil
 
-## Workflow
+1. exec get_services → find code for Uber (ub)
+2. exec get_countries → find Brazil (73)
+3. exec request_number ub 73 → get phone
+4. exec get_status <id> → poll for SMS code
+5. exec set_status <id> 6 → complete
 
-1. **Request number**: Use `request_number` with service (e.g. "tg") and optional country
-2. **Wait for SMS**: Use `get_status` with activationId to poll for code
-3. **Complete**: Use `set_status` with status 6 when code received
-4. **Top-up**: Use `get_crypto_wallet` if user needs to replenish balance
-
-## Setup
-
-User must add grizzly-sms MCP server to `openclaw.json` with API key. See CONFIG.md in this skill.
+## Service codes: tg, wa, ig, ub, fb, go
