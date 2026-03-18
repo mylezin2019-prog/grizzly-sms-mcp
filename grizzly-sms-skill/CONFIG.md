@@ -84,6 +84,63 @@ The agent must use the **exec** tool to run the script. With `tools.profile: "co
 }
 ```
 
+### 4. Allow exec on gateway host
+
+If you get "exec tool was not permitted to run on the gateway host", configure exec to run on the gateway and add approvals.
+
+**Option A — Allowlist (recommended):** Add to `openclaw.json`:
+
+```json5
+{
+  "tools": {
+    "exec": {
+      "host": "gateway",
+      "security": "allowlist",
+      "ask": "on-miss"
+    }
+  }
+}
+```
+
+Then create or edit `~/.openclaw/exec-approvals.json` (macOS) and add `node` to the allowlist. Run `which node` to get your path:
+
+```json
+{
+  "version": 1,
+  "defaults": {
+    "security": "allowlist",
+    "ask": "on-miss",
+    "askFallback": "deny"
+  },
+  "agents": {
+    "main": {
+      "security": "allowlist",
+      "ask": "on-miss",
+      "allowlist": [
+        { "pattern": "/opt/homebrew/bin/node" },
+        { "pattern": "/usr/local/bin/node" }
+      ]
+    }
+  }
+}
+```
+
+**Option B — Full (dev only, less secure):** If you trust the environment:
+
+```json5
+{
+  "tools": {
+    "exec": {
+      "host": "gateway",
+      "security": "full",
+      "ask": "off"
+    }
+  }
+}
+```
+
+Restart after changes: `npx openclaw gateway restart`
+
 ## Important
 
 - **No mcpServers** — OpenClaw uses skills + exec only

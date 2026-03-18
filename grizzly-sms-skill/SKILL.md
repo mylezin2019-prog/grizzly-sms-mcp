@@ -13,10 +13,11 @@ Use this skill when the user needs: SMS verification, virtual numbers (Uber, Tel
 There is NO tool named grizzly_sms.get_services(). You MUST use the **exec** tool to run the script. Example:
 
 ```
-exec(command="node {baseDir}/scripts/grizzly-cli.js get_services", host="gateway")
+exec(command="node {baseDir}/scripts/grizzly-cli.js get_services")
 ```
+Use host=gateway only if tools.exec.host is configured for gateway. Otherwise omit host (default sandbox).
 
-OpenClaw replaces {baseDir} with the skill folder path. If not resolved, use the path from skills.load.extraDirs (e.g. /Users/sitis/Desktop/Grizzly-MCP/grizzly-sms-mcp/grizzly-sms-skill).
+OpenClaw replaces {baseDir} with the skill folder path. If not resolved, use the path from skills.load.extraDirs
 
 ## Commands (run via exec)
 
