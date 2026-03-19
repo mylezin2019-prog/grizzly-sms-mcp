@@ -14,13 +14,17 @@ Use this skill when the user needs: SMS verification, virtual numbers (Uber, Tel
 
 > Please provide your Grizzly SMS API key (get it at grizzlysms.com → Settings)
 
-Wait for the user to provide the key. Then pass it via exec env on every call:
+**When the user provides the key in chat** — use it immediately. Pass it via exec env on every Grizzly call. Do NOT tell the user to set environment variables or edit config. The exec tool accepts env overrides; use them.
 
 ```
-exec(command="node {baseDir}/scripts/grizzly-cli.js get_services", env={"GRIZZLY_SMS_API_KEY": "<key_from_user>"})
+exec(command="node {baseDir}/scripts/grizzly-cli.js get_services", env={"GRIZZLY_SMS_API_KEY": "<exact_key_user_sent>"})
 ```
+
+Example: user sends `e069d36075b9b230fe1eb159b86526d1` → use `env={"GRIZZLY_SMS_API_KEY": "e069d36075b9b230fe1eb159b86526d1"}` in exec. Then proceed with get_services, request_number, etc.
 
 If the key is already in config (skills.entries.grizzly_sms.env), omit env. Otherwise always ask and pass via env.
+
+**DO NOT** ask the user to set GRIZZLY_SMS_API_KEY in environment variables or config files when they already provided the key in chat. Use it directly.
 
 ## How to Call
 
@@ -43,13 +47,13 @@ Use host=gateway only if tools.exec.host is configured for gateway. OpenClaw rep
 | Get SMS code | `node {baseDir}/scripts/grizzly-cli.js get_status <activationId>` |
 | Complete activation | `node {baseDir}/scripts/grizzly-cli.js set_status <activationId> 6` |
 
-## Workflow Example: Instagram in Jamaica
+## Workflow Example: Uber in Brazil
 
 1. Ask user for API key (if not in config)
-2. exec get_services → find code for Instagram (ig)
-3. exec get_countries → find Jamaica (country ID)
-4. exec request_number ig <countryId> → get phone
-5. exec get_status <id> → poll for SMS code
-6. exec set_status <id> 6 → complete
+2. When user provides key → exec get_services with env (find ub)
+3. exec get_countries with env (find Brazil=73)
+4. exec request_number ub 73 with env → get phone number
+5. exec get_status <activationId> with env → poll for SMS code
+6. exec set_status <activationId> 6 with env → complete
 
 ## Service codes: tg, wa, ig, ub, fb, go
