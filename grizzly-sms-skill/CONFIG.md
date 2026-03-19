@@ -161,4 +161,4 @@ Restart after changes: `npx openclaw gateway restart`
 - **No mcpServers** — OpenClaw uses skills + exec only
 - **Node.js** — The script requires Node.js on the gateway host
 - **Grizzly MCP in Docker** — Not used; the skill calls Grizzly API directly via the script
-- Get API key at [grizzlysms.com](https://grizzlysms.com/) → Settings
+- Get API key: register on [grizzlysms.com](https://grizzlysms.com/), then go to the API section ([grizzlysms.com/docs](https://grizzlysms.com/docs)) and copy the key

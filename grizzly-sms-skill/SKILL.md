@@ -12,7 +12,7 @@ Use this skill when the user needs: SMS verification, virtual numbers (Uber, Tel
 
 **Before running any Grizzly command**, you MUST ask the user for the API key (unless they already gave it in this conversation):
 
-> Please provide your Grizzly SMS API key (get it at grizzlysms.com → Settings)
+> Please provide your Grizzly SMS API key. Register on grizzlysms.com, then go to the API section (grizzlysms.com/docs) and copy the key.
 
 **When the user provides the key in chat** — use it immediately. Pass it via exec env on every Grizzly call. Do NOT tell the user to set environment variables or edit config. The exec tool accepts env overrides; use them.
 
