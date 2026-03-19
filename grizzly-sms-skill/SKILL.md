@@ -6,7 +6,7 @@ metadata: {"openclaw":{"primaryEnv":"GRIZZLY_SMS_API_KEY","askForEnvInDialog":tr
 
 # Grizzly SMS Skill
 
-Use this skill when the user needs: SMS verification, virtual numbers (Uber, Telegram, WhatsApp, Instagram, etc.), balance, prices, countries, services.
+Use this skill when the user needs: SMS verification, virtual numbers (Uber, Telegram, WhatsApp, Instagram, etc.), balance, prices, countries, services, or **account registration** with a rented phone number.
 
 ## API Key — Ask in Dialog
 
@@ -47,13 +47,33 @@ Use host=gateway only if tools.exec.host is configured for gateway. OpenClaw rep
 | Get SMS code | `node {baseDir}/scripts/grizzly-cli.js get_status <activationId>` |
 | Complete activation | `node {baseDir}/scripts/grizzly-cli.js set_status <activationId> 6` |
 
-## Workflow Example: Uber in Brazil
+## Full Registration Workflow (any service, any country)
 
-1. Ask user for API key (if not in config)
-2. When user provides key → exec get_services with env (find ub)
-3. exec get_countries with env (find Brazil=73)
-4. exec request_number ub 73 with env → get phone number
-5. exec get_status <activationId> with env → poll for SMS code
-6. exec set_status <activationId> 6 with env → complete
+When the user asks to "register an account for [service] in [country]" (e.g. Uber in Brazil, Instagram in Jamaica):
+
+1. **Ask for API key** (if not in config)
+2. **Resolve service and country codes** — exec get_services and get_countries with env, parse JSON to find the code for the requested service (e.g. Uber → ub, Instagram → ig) and country (e.g. Brazil → 73, Jamaica → lookup in get_countries output)
+3. **Request number** — exec request_number &lt;service&gt; &lt;countryId&gt; with env, save activationId and phone number
+4. **Open browser and register** — use the **browser** tool to:
+   - Navigate to the service registration URL (see table below)
+   - Fill the phone number field with the rented number
+   - Fill other required fields (email, name, etc.) — ask user if needed
+   - Submit the form
+5. **Poll for SMS** — exec get_status &lt;activationId&gt; with env until SMS code arrives
+6. **Enter code in browser** — use browser tool to fill the verification code field and submit
+7. **Complete activation** — exec set_status &lt;activationId&gt; 6 with env
+
+## Registration URLs (for browser tool)
+
+| Service | Registration URL |
+|---------|------------------|
+| Uber | https://riders.uber.com/ |
+| Instagram | https://www.instagram.com/accounts/emailsignup/ |
+| Telegram | https://web.telegram.org/ |
+| WhatsApp | https://web.whatsapp.com/ |
+| Facebook | https://www.facebook.com/reg/ |
+| Google | https://accounts.google.com/signup |
+
+Use browser.navigate, browser.fill, browser.click as needed. Set browser headless=false so the user can see the process on Mac.
 
 ## Service codes: tg, wa, ig, ub, fb, go

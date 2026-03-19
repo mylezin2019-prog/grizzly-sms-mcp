@@ -80,7 +80,32 @@ When the user asks for something (e.g. "register an Instagram account for Jamaic
 2. (Optional) Add API key in `env` — or let the agent ask for it in the dialog
 3. Restart: `npx openclaw gateway restart`
 
-### 3. Ensure exec tool is available
+### 3. Enable browser tool (for registration workflow)
+
+To let the agent open a browser and fill registration forms, enable the **browser** tool. Add to `openclaw.json`:
+
+```json5
+{
+  "browser": {
+    "enabled": true,
+    "headless": false
+  },
+  "agents": {
+    "list": [
+      {
+        "id": "main",
+        "tools": {
+          "alsoAllow": ["agents_list", "exec", "browser"]
+        }
+      }
+    ]
+  }
+}
+```
+
+On Mac, run `openclaw browser install` once to download Chromium. The browser will open visibly (headless: false) so the user can see the registration process.
+
+### 4. Ensure exec tool is available
 
 The agent must use the **exec** tool to run the script. With `tools.profile: "coding"`, exec is usually included. If the agent says it cannot call methods, add:
 
@@ -91,7 +116,7 @@ The agent must use the **exec** tool to run the script. With `tools.profile: "co
       {
         "id": "main",
         "tools": {
-          "alsoAllow": ["agents_list", "exec"]
+          "alsoAllow": ["agents_list", "exec", "browser"]
         }
       }
     ]
@@ -99,7 +124,7 @@ The agent must use the **exec** tool to run the script. With `tools.profile: "co
 }
 ```
 
-### 4. Allow exec on gateway host
+### 5. Allow exec on gateway host
 
 If you get "exec tool was not permitted to run on the gateway host", configure exec to run on the gateway and add approvals.
 
@@ -160,5 +185,6 @@ Restart after changes: `npx openclaw gateway restart`
 
 - **No mcpServers** — OpenClaw uses skills + exec only
 - **Node.js** — The script requires Node.js on the gateway host
+- **Browser tool** — For full registration workflow (open browser, fill forms), enable browser and add it to tools.alsoAllow
 - **Grizzly MCP in Docker** — Not used; the skill calls Grizzly API directly via the script
 - Get API key: register on [grizzlysms.com](https://grizzlysms.com/), then go to the API section ([grizzlysms.com/docs](https://grizzlysms.com/docs)) and copy the key
