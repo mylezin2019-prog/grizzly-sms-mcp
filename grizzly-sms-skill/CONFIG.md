@@ -22,7 +22,9 @@ OpenClaw works with **skills only** (no mcpServers). This skill uses the **exec*
 }
 ```
 
-### 2. Add API key and enable skill
+### 2. Enable skill (API key optional)
+
+**Option A — API key in config** (key is always available):
 
 ```json5
 {
@@ -39,6 +41,22 @@ OpenClaw works with **skills only** (no mcpServers). This skill uses the **exec*
 }
 ```
 
+**Option B — API key in dialog** (agent asks during conversation):
+
+```json5
+{
+  "skills": {
+    "entries": {
+      "grizzly_sms": {
+        "enabled": true
+      }
+    }
+  }
+}
+```
+
+When the user asks for something (e.g. "register an Instagram account for Jamaica"), the agent will ask: *Please provide your Grizzly SMS API key*. After the user provides it, the agent passes it via exec env.
+
 ## Full Example (merge with your config)
 
 ```json5
@@ -49,10 +67,7 @@ OpenClaw works with **skills only** (no mcpServers). This skill uses the **exec*
     },
     "entries": {
       "grizzly_sms": {
-        "enabled": true,
-        "env": {
-          "GRIZZLY_SMS_API_KEY": "your_key"
-        }
+        "enabled": true
       }
     }
   }
@@ -62,7 +77,7 @@ OpenClaw works with **skills only** (no mcpServers). This skill uses the **exec*
 ## Setup Steps
 
 1. Ensure the skill folder is at the path in `extraDirs`
-2. Add your API key from [grizzlysms.com](https://grizzlysms.com/) → Settings
+2. (Optional) Add API key in `env` — or let the agent ask for it in the dialog
 3. Restart: `npx openclaw gateway restart`
 
 ### 3. Ensure exec tool is available
