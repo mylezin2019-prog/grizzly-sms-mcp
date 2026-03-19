@@ -76,4 +76,27 @@ When the user asks to "register an account for [service] in [country]" (e.g. Ube
 
 Use browser.navigate, browser.fill, browser.click as needed. Set browser headless=false so the user can see the process on Mac.
 
+## Output Formatting (for user messages)
+
+When sending phone numbers, activation IDs, or SMS codes to the user, always format them for easy copying:
+
+- **Phone number** — on its own line, clearly labeled
+- **Activation ID (actId)** — on its own line, labeled
+- **SMS code** — on its own line, labeled
+
+**If the channel is Telegram** — wrap each value in monospace using triple backticks. Example:
+
+```
+Phone: `+15551234567`
+Activation ID: `12345678`
+SMS code: `847291`
+```
+
+Or as a compact block:
+```
+`+15551234567` | actId: `12345678` | SMS: `847291`
+```
+
+**If the channel is not Telegram** — use plain labeled format with clear line breaks. Avoid extra punctuation around the values so the user can select and copy easily.
+
 ## Service codes: tg, wa, ig, ub, fb, go
