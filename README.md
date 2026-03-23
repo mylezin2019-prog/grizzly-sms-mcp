@@ -1,4 +1,4 @@
-# Grizzly SMS MCP Server
+# Grizzly SMS — MCP Server & OpenClaw Skill
 
 [English](#english) | [Русский](#russian)
 
@@ -7,67 +7,74 @@
 <a name="english"></a>
 ## English
 
-MCP (Model Context Protocol) server for integrating with [Grizzly SMS](https://grizzlysms.com/) service - a platform for receiving SMS verification codes and virtual phone numbers.
+MCP (Model Context Protocol) server and **OpenClaw Skill** for integrating with [Grizzly SMS](https://grizzlysms.com/) — a platform for SMS verification codes and virtual phone numbers. Compatible with Cursor, Claude Desktop, OpenClaw (MCP and Skill modes).
+
+### What This Project Provides
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| **MCP Server** | Standards-based MCP server exposing Grizzly API tools | Cursor, Claude Desktop, OpenClaw with mcpServers |
+| **OpenClaw Skill** | Instruction-based skill using exec + CLI script | OpenClaw skills-only setup (no mcpServers) |
 
 ### Features
 
-📱 **Phone Number Operations:** Request virtual numbers, check SMS codes, manage activations  
-💰 **Account Management:** Check balance, view service information  
-🌍 **Service Information:** Get available countries, services, and prices  
-🔄 **Real-time Status:** Track activation status and retrieve verification codes
+#### MCP Server
+
+- **Phone operations:** `request_number`, `get_status`, `set_status`
+- **Account:** `get_balance`
+- **Info:** `get_countries`, `get_services`, `get_prices`
+
+#### OpenClaw Skill
+
+- **Dialog-based API key:** Bot asks for the key during the conversation
+- **Balance & top-up:** Check balance and provide crypto wallet (USDT TRC-20) for top-up
+- **Number lifecycle:** Request number, poll for SMS, complete or cancel activation
+- **Full registration workflow:** Resolve service/country codes → rent number → open browser → fill forms → enter SMS code
+- **Formatted output:** Phone, activation ID, and SMS in copy-friendly format (monospace on Telegram)
+
+### OpenClaw Skill Pipeline
+
+1. **API key** — Bot asks: *Please provide your Grizzly SMS API key*
+2. **Balance & top-up** — Bot can show balance and crypto wallet address for USDT TRC-20 top-up
+3. **Number** — Bot rents a number for the requested service and country
+4. **Status** — Bot can cancel an activation or request a new SMS
+5. **SMS** — Bot polls and returns the verification code
+6. **Complete** — Bot marks activation complete after code is used
+
+See [CONFIG.md](CONFIG.md) for OpenClaw skill setup.
 
 ### Prerequisites
 
-- Node.js 18 or higher
-- npm or yarn
-- Grizzly SMS API key (get it from [grizzlysms.com](https://grizzlysms.com/))
+- Node.js 18+
+- Grizzly SMS API key — register at [grizzlysms.com](https://grizzlysms.com/), then get it from the [API section](https://grizzlysms.com/docs)
+
+---
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd mcp-grizzly-sms
-   ```
+```bash
+git clone https://github.com/GrizzlySMS-Git/grizzly-sms-mcp.git
+cd grizzly-sms-mcp
+npm install
+npm run build
+```
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+---
 
-3. **Configure environment**
-   
-   Create a `.env` file in the project root:
-   ```
-   GRIZZLY_SMS_API_KEY=your_api_key_here
-   GRIZZLY_SMS_BASE_URL=https://api.grizzlysms.com
-   ```
+### Configuration: MCP Server (Cursor, Claude Desktop, OpenClaw mcpServers)
 
-4. **Build the project**
-   ```bash
-   npm run build
-   ```
+#### Cursor
 
-5. **Test the server**
-   ```bash
-   npm test
-   ```
-
-### Configuration for Cursor
-
-Add this configuration to your Cursor settings:
-
-#### Windows
-Location: `%APPDATA%\Cursor\User\globalStorage\mcp.json`
+Location: `%APPDATA%\Cursor\User\globalStorage\mcp.json` (Windows) | `~/Library/Application Support/Cursor/User/globalStorage/mcp.json` (macOS) | `~/.config/Cursor/User/globalStorage/mcp.json` (Linux)
 
 ```json
 {
   "mcpServers": {
     "grizzly-sms": {
       "command": "node",
-      "args": ["C:/path/to/mcp-grizzly-sms/dist/index.js"],
+      "args": ["/absolute/path/to/grizzly-sms-mcp/dist/index.js"],
       "env": {
-        "GRIZZLY_SMS_API_KEY": "your_api_key_here",
+        "GRIZZLY_SMS_API_KEY": "your_api_key",
         "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
       }
     }
@@ -75,60 +82,21 @@ Location: `%APPDATA%\Cursor\User\globalStorage\mcp.json`
 }
 ```
 
-#### macOS
-Location: `~/Library/Application Support/Cursor/User/globalStorage/mcp.json`
+#### OpenClaw (mcpServers)
 
-```json
-{
-  "mcpServers": {
-    "grizzly-sms": {
-      "command": "node",
-      "args": ["/Users/username/path/to/mcp-grizzly-sms/dist/index.js"],
-      "env": {
-        "GRIZZLY_SMS_API_KEY": "your_api_key_here",
-        "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
-      }
-    }
-  }
-}
-```
-
-#### Linux
-Location: `~/.config/Cursor/User/globalStorage/mcp.json`
-
-```json
-{
-  "mcpServers": {
-    "grizzly-sms": {
-      "command": "node",
-      "args": ["/home/username/path/to/mcp-grizzly-sms/dist/index.js"],
-      "env": {
-        "GRIZZLY_SMS_API_KEY": "your_api_key_here",
-        "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
-      }
-    }
-  }
-}
-```
-
-### Configuration for OpenClaw 🚀
-
-Add this configuration to your OpenClaw settings:
-
-#### Windows
-Location: `%APPDATA%\.openclaw\openclaw.json`
+Location: `~/.openclaw/openclaw.json` (macOS/Linux) | `%APPDATA%\.openclaw\openclaw.json` (Windows)
 
 ```json
 {
   "agents": {
-    "main": {
-      "model": "anthropic:claude-sonnet-4-20250514",
+    "list": [{
+      "id": "main",
       "mcpServers": {
         "grizzly-sms": {
           "command": "node",
-          "args": ["C:/absolute/path/to/grizzly-sms-mcp/dist/index.js"],
+          "args": ["/absolute/path/to/grizzly-sms-mcp/dist/index.js"],
           "env": {
-            "GRIZZLY_SMS_API_KEY": "your_api_key_here",
+            "GRIZZLY_SMS_API_KEY": "your_api_key",
             "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
           }
         }
@@ -138,228 +106,194 @@ Location: `%APPDATA%\.openclaw\openclaw.json`
 }
 ```
 
-#### macOS
-Location: `~/.openclaw/openclaw.json`
+Use absolute paths. Restart after changes: `openclaw gateway restart`
+
+---
+
+### Configuration: OpenClaw Skill (skills-only, no mcpServers)
+
+1. Add skill path to `openclaw.json`:
 
 ```json
 {
-  "agents": {
-    "main": {
-      "model": "anthropic:claude-sonnet-4-20250514",
-      "mcpServers": {
-        "grizzly-sms": {
-          "command": "node",
-          "args": ["/Users/username/absolute/path/to/grizzly-sms-mcp/dist/index.js"],
-          "env": {
-            "GRIZZLY_SMS_API_KEY": "your_api_key_here",
-            "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
-          }
-        }
+  "skills": {
+    "load": {
+      "extraDirs": ["/absolute/path/to/grizzly-sms-mcp"]
+    },
+    "entries": {
+      "grizzly_sms": {
+        "enabled": true
       }
     }
   }
 }
 ```
 
-#### Linux
-Location: `~/.openclaw/openclaw.json`
+2. Enable **exec** and optionally **browser** tools for the agent
+3. Restart: `npx openclaw gateway restart`
 
-```json
-{
-  "agents": {
-    "main": {
-      "model": "anthropic:claude-sonnet-4-20250514",
-      "mcpServers": {
-        "grizzly-sms": {
-          "command": "node",
-          "args": ["/home/username/absolute/path/to/grizzly-sms-mcp/dist/index.js"],
-          "env": {
-            "GRIZZLY_SMS_API_KEY": "your_api_key_here",
-            "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
-          }
-        }
-      }
-    }
-  }
-}
-```
+Full setup (exec approvals, browser tool, API key in dialog) — see [CONFIG.md](CONFIG.md).
 
-> ⚠️ **Important notes for OpenClaw:**
-> - Always use **absolute paths** (not `~` or relative paths)
-> - Replace the path in `args` with your actual path to `dist/index.js`
-> - Restart OpenClaw Gateway after config changes: `openclaw gateway restart`
-> - Environment variables are scoped to the MCP server only
+---
 
-### Quick Setup for OpenClaw:
+### MCP Tools Reference
 
-1. **Install dependencies and build:**
-   ```bash
-   npm install
-   npm run build
-   ```
-
-2. **Add configuration** to your `openclaw.json` (use absolute paths!)
-
-3. **Restart Gateway:**
-   ```bash
-   openclaw gateway restart
-   ```
-
-4. **Check logs:**
-   ```bash
-   openclaw logs --tail 20
-   ```
-
-You should see: `MCP server "grizzly-sms" connected`
-
-### Available Tools
-
-#### Phone Number Operations
-
-- **`request_number`** - Request a virtual phone number for SMS verification
-  - `service` (required): Service code or name (e.g., "tg" or "Telegram", "wa" or "WhatsApp")
-  - `country` (optional): Country ID or "*" or "any" for any country
-  - `maxPrice` (optional): Maximum price you're willing to pay
-  - `providerIds` (optional): Comma-separated list of provider IDs to include
-  - `exceptProviderIds` (optional): Comma-separated list of provider IDs to exclude
-  - `version` (optional): API version - "v1" (plain text) or "v2" (JSON with details)
-
-- **`get_status`** - Check activation status and retrieve SMS code
-  - `activationId` (required): The activation ID from request_number
-
-- **`set_status`** - Change activation status
-  - `activationId` (required): The activation ID
-  - `status` (required): Status code (1=ready, 3=request new code, 6=complete, 8 or -1=cancel)
-
-#### Information Tools
-
-- **`get_balance`** - Check account balance
-- **`get_countries`** - Get list of all available countries
-- **`get_services`** - Get list of all available services
-- **`get_prices`** - Get service prices by country
-  - `service` (optional): Service code
-  - `country` (optional): Country ID or "*" for any country
-  - `version` (optional): API version - "v1", "v2", or "v3"
+| Tool | Parameters | Description |
+|------|------------|-------------|
+| `request_number` | service (required), country (optional), maxPrice, providerIds, exceptProviderIds | Rent a virtual number |
+| `get_status` | activationId (required) | Get activation status and SMS code |
+| `set_status` | activationId, status (6=complete, 8=cancel) | Change activation status |
+| `get_balance` | — | Check balance |
+| `get_countries` | — | List countries |
+| `get_services` | — | List services |
+| `get_prices` | service, country (optional) | Get prices |
 
 ### Common Service Codes
 
 | Code | Service |
 |------|---------|
-| `tg` | Telegram |
-| `wa` | WhatsApp |
-| `ig` | Instagram |
-| `fb` | Facebook |
-| `go` | Google, Gmail, Youtube |
-| `tw` | Twitter |
-| `vi` | Viber |
-| `ot` | Any other |
+| tg | Telegram |
+| wa | WhatsApp |
+| ig | Instagram |
+| fb | Facebook |
+| go | Google |
+| ub | Uber |
 
 ### Common Country IDs
 
 | ID | Country |
 |----|---------|
-| 1 | Ukraine |
-| 2 | Kazakhstan |
-| 3 | China |
-| 4 | Philippines |
-| 6 | Indonesia |
-| 10 | Vietnam |
-| 12 | USA (Virtual) |
-| 16 | England |
-| 22 | India |
 | 73 | Brazil |
+| 1 | Ukraine |
+| 16 | England |
 | 187 | USA |
+| 22 | India |
+
+---
+
+### Project Structure
+
+```
+grizzly-sms-mcp/
+├── SKILL.md           # OpenClaw skill instructions
+├── CONFIG.md          # OpenClaw skill config guide
+├── clawhub.json       # ClawHub metadata
+├── scripts/
+│   └── grizzly-cli.js # CLI for OpenClaw exec
+├── src/               # MCP server (TypeScript)
+│   ├── index.ts
+│   └── grizzly-sms-client.ts
+├── docs/
+├── package.json
+└── README.md
+```
+
+---
 
 ### Development
 
 ```bash
-# Run in development mode
-npm run dev
-
-# Build the project
-npm run build
-
-# Start the server
-npm start
-
-# Run tests
-npm test
-
-# Test API methods
-npm run test:api
+npm run dev      # Development mode
+npm run build    # Build MCP server
+npm start        # Run MCP server
+npm test         # Run tests
+npm run test:api # Test API methods
 ```
+
+---
 
 ### Troubleshooting
 
-- **"GRIZZLY_SMS_API_KEY environment variable is required"** - Create `.env` file with your API key
-- **"BAD_KEY"** - Verify API key is correct
-- **"NO_BALANCE"** - Check account balance on [grizzlysms.com](https://grizzlysms.com/)
-- **Connection errors** - Check internet connection and API availability
+- **GRIZZLY_SMS_API_KEY required** — Set in `.env`, config, or provide in chat (Skill mode)
+- **BAD_KEY** — Verify API key at [grizzlysms.com](https://grizzlysms.com/)
+- **NO_BALANCE** — Top up at [grizzlysms.com](https://grizzlysms.com/) (USDT TRC-20 supported)
+- **exec not permitted** — Configure exec approvals; see [CONFIG.md](CONFIG.md)
+
+---
+
+### Support
+
+- API docs: [grizzlysms.com/docs](https://grizzlysms.com/docs)
+- Website: [grizzlysms.com](https://grizzlysms.com/)
+- Issues: [GitHub Issues](https://github.com/GrizzlySMS-Git/grizzly-sms-mcp/issues)
+
+---
+
+### License
+
+MIT — see [LICENSE](LICENSE)
 
 ---
 
 <a name="russian"></a>
 ## Русский
 
-MCP (Model Context Protocol) сервер для интеграции с сервисом [Grizzly SMS](https://grizzlysms.com/) - платформой для получения SMS кодов верификации и виртуальных номеров телефонов.
+MCP (Model Context Protocol) сервер и **OpenClaw Skill** для интеграции с [Grizzly SMS](https://grizzlysms.com/) — платформой SMS верификации и виртуальных номеров. Совместимо с Cursor, Claude Desktop, OpenClaw (режимы MCP и Skill).
+
+### Что предоставляет проект
+
+| Режим | Описание | Когда использовать |
+|-------|----------|--------------------|
+| **MCP Server** | MCP‑сервер с инструментами Grizzly API | Cursor, Claude Desktop, OpenClaw с mcpServers |
+| **OpenClaw Skill** | Skill на exec + CLI‑скрипт | OpenClaw только со skills (без mcpServers) |
 
 ### Возможности
 
-📱 **Операции с номерами:** Запрос виртуальных номеров, проверка SMS кодов, управление активациями  
-💰 **Управление аккаунтом:** Проверка баланса, просмотр информации о сервисах  
-🌍 **Информация о сервисах:** Получение доступных стран, сервисов и цен  
-🔄 **Статус в реальном времени:** Отслеживание статуса активации и получение кодов верификации
+#### MCP Server
+
+- **Номера:** `request_number`, `get_status`, `set_status`
+- **Аккаунт:** `get_balance`
+- **Справочники:** `get_countries`, `get_services`, `get_prices`
+
+#### OpenClaw Skill
+
+- **API‑ключ в диалоге:** бот запрашивает ключ в чате
+- **Баланс и пополнение:** показывает баланс и криптокошелёк (USDT TRC-20) для пополнения
+- **Жизненный цикл номера:** аренда номера, ожидание SMS, завершение или отмена активации
+- **Полный workflow регистрации:** определение сервиса/страны → аренда номера → браузер → заполнение форм → ввод SMS‑кода
+- **Форматированный вывод:** номер, ID активации и SMS в удобном для копирования виде (моноширинный текст в Telegram)
+
+### Пайплайн OpenClaw Skill
+
+1. **API‑ключ** — бот спрашивает: *Выдайте API ключ Grizzly SMS*
+2. **Баланс и пополнение** — бот показывает баланс и адрес кошелька USDT TRC-20
+3. **Номер** — бот арендует номер для указанного сервиса и страны
+4. **Статус** — бот может отменить активацию или запросить новый SMS
+5. **SMS** — бот опрашивает статус и возвращает код
+6. **Завершение** — бот помечает активацию выполненной после использования кода
+
+Подробная настройка — в [CONFIG.md](CONFIG.md).
 
 ### Требования
 
-- Node.js 18 или выше
-- npm или yarn
-- API ключ Grizzly SMS (получите на [grizzlysms.com](https://grizzlysms.com/))
+- Node.js 18+
+- API‑ключ Grizzly SMS — регистрация на [grizzlysms.com](https://grizzlysms.com/), ключ в [разделе API](https://grizzlysms.com/docs)
+
+---
 
 ### Установка
 
-1. **Клонирование репозитория**
-   ```bash
-   git clone <repository-url>
-   cd mcp-grizzly-sms
-   ```
+```bash
+git clone https://github.com/GrizzlySMS-Git/grizzly-sms-mcp.git
+cd grizzly-sms-mcp
+npm install
+npm run build
+```
 
-2. **Установка зависимостей**
-   ```bash
-   npm install
-   ```
+---
 
-3. **Настройка окружения**
-   
-   Создайте файл `.env` в корне проекта:
-   ```
-   GRIZZLY_SMS_API_KEY=ваш_api_ключ
-   GRIZZLY_SMS_BASE_URL=https://api.grizzlysms.com
-   ```
+### Конфигурация: MCP Server (Cursor, Claude Desktop, OpenClaw mcpServers)
 
-4. **Сборка проекта**
-   ```bash
-   npm run build
-   ```
+#### Cursor
 
-5. **Тестирование сервера**
-   ```bash
-   npm test
-   ```
-
-### Конфигурация для Cursor
-
-Добавьте эту конфигурацию в настройки Cursor:
-
-#### Windows
-Расположение: `%APPDATA%\Cursor\User\globalStorage\mcp.json`
+Путь: `%APPDATA%\Cursor\User\globalStorage\mcp.json` (Windows) | `~/Library/Application Support/Cursor/User/globalStorage/mcp.json` (macOS) | `~/.config/Cursor/User/globalStorage/mcp.json` (Linux)
 
 ```json
 {
   "mcpServers": {
     "grizzly-sms": {
       "command": "node",
-      "args": ["C:/путь/к/mcp-grizzly-sms/dist/index.js"],
+      "args": ["/абсолютный/путь/к/grizzly-sms-mcp/dist/index.js"],
       "env": {
         "GRIZZLY_SMS_API_KEY": "ваш_api_ключ",
         "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
@@ -369,58 +303,19 @@ MCP (Model Context Protocol) сервер для интеграции с сер�
 }
 ```
 
-#### macOS
-Расположение: `~/Library/Application Support/Cursor/User/globalStorage/mcp.json`
+#### OpenClaw (mcpServers)
 
-```json
-{
-  "mcpServers": {
-    "grizzly-sms": {
-      "command": "node",
-      "args": ["/Users/username/путь/к/mcp-grizzly-sms/dist/index.js"],
-      "env": {
-        "GRIZZLY_SMS_API_KEY": "ваш_api_ключ",
-        "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
-      }
-    }
-  }
-}
-```
-
-#### Linux
-Расположение: `~/.config/Cursor/User/globalStorage/mcp.json`
-
-```json
-{
-  "mcpServers": {
-    "grizzly-sms": {
-      "command": "node",
-      "args": ["/home/username/путь/к/mcp-grizzly-sms/dist/index.js"],
-      "env": {
-        "GRIZZLY_SMS_API_KEY": "ваш_api_ключ",
-        "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
-      }
-    }
-  }
-}
-```
-
-### Конфигурация для OpenClaw 🚀
-
-Добавьте эту конфигурацию в настройки OpenClaw:
-
-#### Windows
-Расположение: `%APPDATA%\.openclaw\openclaw.json`
+Путь: `~/.openclaw/openclaw.json` (macOS/Linux) | `%APPDATA%\.openclaw\openclaw.json` (Windows)
 
 ```json
 {
   "agents": {
-    "main": {
-      "model": "anthropic:claude-sonnet-4-20250514",
+    "list": [{
+      "id": "main",
       "mcpServers": {
         "grizzly-sms": {
           "command": "node",
-          "args": ["C:/absolute/path/to/grizzly-sms-mcp/dist/index.js"],
+          "args": ["/абсолютный/путь/к/grizzly-sms-mcp/dist/index.js"],
           "env": {
             "GRIZZLY_SMS_API_KEY": "ваш_api_ключ",
             "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
@@ -432,209 +327,88 @@ MCP (Model Context Protocol) сервер для интеграции с сер�
 }
 ```
 
-#### macOS
-Расположение: `~/.openclaw/openclaw.json`
+Используйте абсолютные пути. После изменений: `openclaw gateway restart`
+
+---
+
+### Конфигурация: OpenClaw Skill (только skills, без mcpServers)
+
+1. Добавьте путь к skill в `openclaw.json`:
 
 ```json
 {
-  "agents": {
-    "main": {
-      "model": "anthropic:claude-sonnet-4-20250514",
-      "mcpServers": {
-        "grizzly-sms": {
-          "command": "node",
-          "args": ["/Users/username/absolute/path/to/grizzly-sms-mcp/dist/index.js"],
-          "env": {
-            "GRIZZLY_SMS_API_KEY": "ваш_api_ключ",
-            "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
-          }
-        }
+  "skills": {
+    "load": {
+      "extraDirs": ["/абсолютный/путь/к/grizzly-sms-mcp"]
+    },
+    "entries": {
+      "grizzly_sms": {
+        "enabled": true
       }
     }
   }
 }
 ```
 
-#### Linux
-Расположение: `~/.openclaw/openclaw.json`
+2. Включите инструменты **exec** и по необходимости **browser**
+3. Перезапуск: `npx openclaw gateway restart`
 
-```json
-{
-  "agents": {
-    "main": {
-      "model": "anthropic:claude-sonnet-4-20250514",
-      "mcpServers": {
-        "grizzly-sms": {
-          "command": "node",
-          "args": ["/home/username/absolute/path/to/grizzly-sms-mcp/dist/index.js"],
-          "env": {
-            "GRIZZLY_SMS_API_KEY": "ваш_api_ключ",
-            "GRIZZLY_SMS_BASE_URL": "https://api.grizzlysms.com"
-          }
-        }
-      }
-    }
-  }
-}
-```
+Полная настройка (exec approvals, browser, API key в диалоге) — в [CONFIG.md](CONFIG.md).
 
-> ⚠️ **Важные замечания для OpenClaw:**
-> - Всегда используйте **абсолютные пути** (не `~` или относительные пути)
-> - Замените путь в `args` на ваш реальный путь к `dist/index.js`
-> - Перезапустите Gateway после изменений: `openclaw gateway restart`
-> - Переменные окружения применяются только к MCP серверу
+---
 
-### Быстрая настройка для OpenClaw:
+### Справка по MCP‑инструментам
 
-1. **Установите зависимости и соберите проект:**
-   ```bash
-   npm install
-   npm run build
-   ```
+| Инструмент | Параметры | Описание |
+|------------|-----------|----------|
+| `request_number` | service (обяз.), country (опц.), maxPrice, providerIds, exceptProviderIds | Аренда виртуального номера |
+| `get_status` | activationId (обяз.) | Статус активации и SMS‑код |
+| `set_status` | activationId, status (6=завершить, 8=отменить) | Изменение статуса |
+| `get_balance` | — | Баланс |
+| `get_countries` | — | Список стран |
+| `get_services` | — | Список сервисов |
+| `get_prices` | service, country (опц.) | Цены |
 
-2. **Добавьте конфигурацию** в ваш `openclaw.json` (используйте абсолютные пути!)
-
-3. **Перезапустите Gateway:**
-   ```bash
-   openclaw gateway restart
-   ```
-
-4. **Проверьте логи:**
-   ```bash
-   openclaw logs --tail 20
-   ```
-
-Должно появиться: `MCP server "grizzly-sms" connected`
-
-### Доступные инструменты
-
-#### Операции с телефонными номерами
-
-- **`request_number`** - Запрос виртуального номера телефона для SMS верификации
-  - `service` (обязательный): Код или название сервиса (например, "tg" или "Telegram", "wa" или "WhatsApp")
-  - `country` (опциональный): ID страны или "*" или "any" для любой страны
-  - `maxPrice` (опциональный): Максимальная цена, которую вы готовы заплатить
-  - `providerIds` (опциональный): Список ID провайдеров через запятую для включения
-  - `exceptProviderIds` (опциональный): Список ID провайдеров через запятую для исключения
-  - `version` (опциональный): Версия API - "v1" (обычный текст) или "v2" (JSON с деталями)
-
-- **`get_status`** - Проверка статуса активации и получение SMS кода
-  - `activationId` (обязательный): ID активации из request_number
-
-- **`set_status`** - Изменение статуса активации
-  - `activationId` (обязательный): ID активации
-  - `status` (обязательный): Код статуса (1=готов, 3=новый код, 6=завершить, 8 или -1=отменить)
-
-#### Информационные инструменты
-
-- **`get_balance`** - Проверка баланса аккаунта
-- **`get_countries`** - Получить список всех доступных стран
-- **`get_services`** - Получить список всех доступных сервисов
-- **`get_prices`** - Получить цены на сервисы по странам
-  - `service` (опциональный): Код сервиса
-  - `country` (опциональный): ID страны или "*" для любой страны
-  - `version` (опциональный): Версия API - "v1", "v2", или "v3"
-
-### Основные коды сервисов
+### Коды сервисов
 
 | Код | Сервис |
-|------|---------|
-| `tg` | Telegram |
-| `wa` | WhatsApp |
-| `ig` | Instagram |
-| `fb` | Facebook |
-| `go` | Google, Gmail, Youtube |
-| `tw` | Twitter |
-| `vi` | Viber |
-| `ot` | Любой другой |
+|-----|--------|
+| tg | Telegram |
+| wa | WhatsApp |
+| ig | Instagram |
+| fb | Facebook |
+| go | Google |
+| ub | Uber |
 
-### Основные ID стран
+### ID стран
 
 | ID | Страна |
-|----|---------|
-| 1 | Украина |
-| 2 | Казахстан |
-| 3 | Китай |
-| 4 | Филиппины |
-| 6 | Индонезия |
-| 10 | Вьетнам |
-| 12 | США (Виртуальный) |
-| 16 | Англия |
-| 22 | Индия |
+|----|--------|
 | 73 | Бразилия |
+| 1 | Украина |
+| 16 | Англия |
 | 187 | США |
+| 22 | Индия |
 
-### Разработка
-
-```bash
-# Запуск в режиме разработки
-npm run dev
-
-# Сборка проекта
-npm run build
-
-# Запуск сервера
-npm start
-
-# Запуск тестов
-npm test
-
-# Тестирование методов API
-npm run test:api
-```
+---
 
 ### Решение проблем
 
-- **"GRIZZLY_SMS_API_KEY environment variable is required"** - Создайте файл `.env` с вашим API ключом
-- **"BAD_KEY"** - Проверьте правильность API ключа
-- **"NO_BALANCE"** - Проверьте баланс аккаунта на [grizzlysms.com](https://grizzlysms.com/)
-- **Ошибки подключения** - Проверьте интернет-соединение и доступность API
+- **GRIZZLY_SMS_API_KEY required** — Задайте в `.env`, конфиге или передайте в чате (Skill)
+- **BAD_KEY** — Проверьте ключ на [grizzlysms.com](https://grizzlysms.com/)
+- **NO_BALANCE** — Пополните на [grizzlysms.com](https://grizzlysms.com/) (USDT TRC-20)
+- **exec not permitted** — Настройте exec approvals в [CONFIG.md](CONFIG.md)
 
 ---
 
-### Структура проекта
+### Поддержка
 
-```
-mcp-grizzly-sms/
-├── src/
-│   ├── index.ts              # Main MCP server / Основной MCP сервер
-│   └── grizzly-sms-client.ts # Grizzly SMS API client / Клиент API
-├── dist/                     # Compiled JavaScript / Скомпилированный код
-├── docs/                     # API documentation / Документация API
-│   ├── GRIZZLY-SMS.postman_collection.json
-│   ├── api-protocol-for-working-with-grizzly-sms.json
-│   └── services.json
-├── test-mcp.js              # Basic test script / Базовый тестовый скрипт
-├── test-api-methods.js      # API methods test script / Скрипт тестирования методов API
-├── package.json
-├── tsconfig.json
-├── claude-desktop-config.json
-└── README.md
-```
-
----
-
-### Поддержка / Support
-
-- API Documentation: [grizzlysms.com/ru/docs](https://grizzlysms.com/ru/docs)
-- Grizzly SMS Website: [grizzlysms.com](https://grizzlysms.com/)
+- API: [grizzlysms.com/docs](https://grizzlysms.com/docs)
+- Сайт: [grizzlysms.com](https://grizzlysms.com/)
 - Issues: [GitHub Issues](https://github.com/GrizzlySMS-Git/grizzly-sms-mcp/issues)
 
 ---
 
-### Лицензия / License
+### Лицензия
 
-MIT License - see [LICENSE](LICENSE) file for details.
-
----
-
-### Автор / Author
-
-Created for Grizzly SMS integration
-
----
-
-### Благодарности / Acknowledgments
-
-- [Grizzly SMS](https://grizzlysms.com/) for providing the SMS verification service
-- [Anthropic](https://anthropic.com/) for the MCP protocol specification
+MIT — см. [LICENSE](LICENSE)

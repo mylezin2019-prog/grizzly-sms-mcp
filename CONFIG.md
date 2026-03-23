@@ -12,11 +12,17 @@ OpenClaw works with **skills only** (no mcpServers). This skill uses the **exec*
 
 ### 1. Load the skill
 
+**Option A — Install from GitHub (recommended):**
+```bash
+openclaw skills add https://github.com/GrizzlySMS-Git/grizzly-sms-mcp
+```
+
+**Option B — Add via extraDirs** (if you cloned manually):
 ```json5
 {
   "skills": {
     "load": {
-      "extraDirs": ["/path/to/grizzly-sms-mcp/grizzly-sms-skill"]
+      "extraDirs": ["/path/to/grizzly-sms-mcp"]
     }
   }
 }
@@ -63,7 +69,7 @@ When the user asks for something (e.g. "register an Instagram account for Jamaic
 {
   "skills": {
     "load": {
-      "extraDirs": ["/Users/sitis/Desktop/Grizzly-MCP/grizzly-sms-mcp/grizzly-sms-skill"]
+      "extraDirs": ["/path/to/grizzly-sms-mcp"]
     },
     "entries": {
       "grizzly_sms": {
