@@ -92,6 +92,14 @@ const tools: Tool[] = [
     },
   },
   {
+    name: 'get_wallet',
+    description: 'Get USDT TRC-20 crypto wallet address for balance top-up. Send USDT to this address (min 50 USD). Funds credit automatically.',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+    },
+  },
+  {
     name: 'request_number',
     description: 'Request a phone number for SMS verification',
     inputSchema: {
@@ -182,6 +190,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
             {
               type: 'text',
               text: `Balance: ${balance.balance} ${balance.currency}`,
+            },
+          ],
+        };
+      }
+
+      case 'get_wallet': {
+        const wallet = await client.getWallet();
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `USDT TRC-20 wallet: ${wallet.wallet_address}\nMinimum top-up: 50 USD. Funds credit automatically to your Grizzly balance.`,
             },
           ],
         };

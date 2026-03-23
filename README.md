@@ -144,6 +144,7 @@ Full setup (exec approvals, browser tool, API key in dialog) — see [CONFIG.md]
 | `get_status` | activationId (required) | Get activation status and SMS code |
 | `set_status` | activationId, status (6=complete, 8=cancel) | Change activation status |
 | `get_balance` | — | Check balance |
+| `get_wallet` | — | Get USDT TRC-20 wallet address for top-up |
 | `get_countries` | — | List countries |
 | `get_services` | — | List services |
 | `get_prices` | service, country (optional) | Get prices |
@@ -365,6 +366,7 @@ npm run build
 | `get_status` | activationId (обяз.) | Статус активации и SMS‑код |
 | `set_status` | activationId, status (6=завершить, 8=отменить) | Изменение статуса |
 | `get_balance` | — | Баланс |
+| `get_wallet` | — | Адрес кошелька USDT TRC-20 для пополнения |
 | `get_countries` | — | Список стран |
 | `get_services` | — | Список сервисов |
 | `get_prices` | service, country (опц.) | Цены |

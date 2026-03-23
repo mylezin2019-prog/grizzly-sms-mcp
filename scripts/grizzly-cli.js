@@ -3,7 +3,7 @@
  * Grizzly SMS CLI - for use with OpenClaw exec tool.
  * Requires: GRIZZLY_SMS_API_KEY in env (via skills.entries.grizzly_sms.env)
  * Usage: node grizzly-cli.js <command> [args...]
- * Commands: get_services | get_countries | get_balance | get_prices | request_number | get_status | set_status
+ * Commands: get_services | get_countries | get_balance | get_prices | get_wallet | request_number | get_status | set_status
  */
 
 const API_KEY = process.env.GRIZZLY_SMS_API_KEY;
@@ -46,6 +46,22 @@ async function main() {
       case 'get_balance': {
         const data = await request({ action: 'getBalance' });
         console.log(typeof data === 'string' ? data : JSON.stringify(data, null, 2));
+        break;
+      }
+      case 'get_wallet': {
+        const base = new URL(BASE_URL).origin;
+        const url = new URL('/public/crypto/wallet', base + '/');
+        url.searchParams.set('api_key', API_KEY);
+        url.searchParams.set('coin', 'usdt');
+        url.searchParams.set('network', 'tron');
+        const res = await fetch(url.toString());
+        const text = await res.text();
+        try {
+          const data = JSON.parse(text);
+          console.log(JSON.stringify(data, null, 2));
+        } catch {
+          console.log(JSON.stringify({ wallet_address: null, error: text }));
+        }
         break;
       }
       case 'get_prices': {
@@ -92,10 +108,11 @@ async function main() {
       default:
         console.error(JSON.stringify({
           error: 'Unknown command',
-          usage: 'grizzly-cli.js <get_services|get_countries|get_balance|get_prices|request_number|get_status|set_status> [args...]',
+          usage: 'grizzly-cli.js <get_services|get_countries|get_balance|get_prices|get_wallet|request_number|get_status|set_status> [args...]',
           examples: [
             'node grizzly-cli.js get_services',
-            'node grizzly-cli.js get_countries',
+            'node grizzly-cli.js get_balance',
+            'node grizzly-cli.js get_wallet',
             'node grizzly-cli.js request_number ub 73',
             'node grizzly-cli.js get_status ACTIVATION_ID',
             'node grizzly-cli.js set_status ACTIVATION_ID 6',

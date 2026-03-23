@@ -43,9 +43,28 @@ Use host=gateway only if tools.exec.host is configured for gateway. OpenClaw rep
 | List services (find Uber) | `node {baseDir}/scripts/grizzly-cli.js get_services` |
 | List countries (Brazil=73) | `node {baseDir}/scripts/grizzly-cli.js get_countries` |
 | Check balance | `node {baseDir}/scripts/grizzly-cli.js get_balance` |
+| Get crypto wallet for top-up | `node {baseDir}/scripts/grizzly-cli.js get_wallet` |
 | Request number | `node {baseDir}/scripts/grizzly-cli.js request_number ub 73` |
 | Get SMS code | `node {baseDir}/scripts/grizzly-cli.js get_status <activationId>` |
 | Complete activation | `node {baseDir}/scripts/grizzly-cli.js set_status <activationId> 6` |
+
+## Balance & Crypto Top-up
+
+When the user asks about **balance**, **top-up**, **replenish**, or gets **NO_BALANCE**:
+
+1. **get_balance** — show current balance (e.g. ACCESS_BALANCE:10.50)
+2. **get_wallet** — returns `wallet_address` for USDT (TRC-20)
+3. Tell the user: *Send USDT (TRC-20 network) to this address. Minimum 50 USD. Funds are credited automatically to your Grizzly balance.*
+
+Format the wallet address for easy copying (monospace on Telegram). Example:
+
+```
+Balance: `10.50` USD
+Crypto wallet (USDT TRC-20): `TReiqL2AkD1euTgjXmrtKLnwDAbNPgTstU`
+Min top-up: 50 USD. Funds credit automatically.
+```
+
+You are NOT handling crypto transactions — you only retrieve and display the wallet address from the Grizzly API so the user can send USDT from their own wallet.
 
 ## Full Registration Workflow (any service, any country)
 
