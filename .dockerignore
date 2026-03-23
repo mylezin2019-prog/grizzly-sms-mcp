@@ -4,5 +4,4 @@ dist
 .env.*
 *.log
 .git
-grizzly-sms-skill
 .claude
