@@ -288,5 +288,16 @@ export class GrizzlySMSClient {
   async getServices(): Promise<any> {
     return await this.makeRequest({ action: 'getServicesList' });
   }
+
+  async getWallet(coin: string = 'usdt', network: string = 'tron'): Promise<{ wallet_address: string }> {
+    const response = await this.client.get('/public/crypto/wallet', {
+      params: {
+        api_key: this.apiKey,
+        coin,
+        network,
+      },
+    });
+    return response.data;
+  }
 }
 
