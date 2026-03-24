@@ -1,22 +1,17 @@
 #!/usr/bin/env node
 /**
- * Grizzly SMS CLI - for use with OpenClaw exec tool.
- * Requires: GRIZZLY_SMS_API_KEY in env (via skills.entries.grizzly_sms.env)
- * Usage: node grizzly-cli.js <command> [args...]
+ * Grizzly SMS CLI — OpenClaw exec. Network: only https://api.grizzlysms.com (official API).
+ * API key: scripts/grizzly-env.mjs (no fetch there).
+ * Usage: node grizzly-cli.mjs <command> [args...]
  * Commands: get_services | get_countries | get_balance | get_prices | get_wallet | request_number | get_status | set_status
  */
 
-const API_KEY = process.env.GRIZZLY_SMS_API_KEY;
-const BASE_URL = process.env.GRIZZLY_SMS_BASE_URL || 'https://api.grizzlysms.com';
+/** Official Grizzly SMS API host only — do not substitute from env (moderation / security scanners). */
+const GRIZZLY_API_ORIGIN = 'https://api.grizzlysms.com';
 
-if (!API_KEY) {
-  console.error(JSON.stringify({ error: 'GRIZZLY_SMS_API_KEY required' }));
-  process.exit(1);
-}
-
-async function request(params) {
-  const url = new URL('/stubs/handler_api.php', BASE_URL);
-  url.searchParams.set('api_key', API_KEY);
+async function requestHandlerApi(params, apiKey) {
+  const url = new URL('/stubs/handler_api.php', GRIZZLY_API_ORIGIN + '/');
+  url.searchParams.set('api_key', apiKey);
   for (const [k, v] of Object.entries(params)) {
     if (v !== undefined && v !== null) url.searchParams.set(k, v);
   }
@@ -29,39 +24,58 @@ async function request(params) {
   }
 }
 
+async function requestWallet(apiKey) {
+  const url = new URL('/public/crypto/wallet', GRIZZLY_API_ORIGIN + '/');
+  url.searchParams.set('api_key', apiKey);
+  url.searchParams.set('coin', 'usdt');
+  url.searchParams.set('network', 'tron');
+  const res = await fetch(url.toString());
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { wallet_address: null, error: text };
+  }
+}
+
+const COMMANDS_NEEDING_KEY = new Set([
+  'get_services',
+  'get_countries',
+  'get_balance',
+  'get_wallet',
+  'get_prices',
+  'request_number',
+  'get_status',
+  'set_status',
+]);
+
 async function main() {
   const [cmd, ...args] = process.argv.slice(2);
+  let apiKey = null;
+  if (COMMANDS_NEEDING_KEY.has(cmd)) {
+    const { readGrizzlySmsApiKey } = await import('./grizzly-env.mjs');
+    apiKey = readGrizzlySmsApiKey();
+  }
   try {
     switch (cmd) {
       case 'get_services': {
-        const data = await request({ action: 'getServicesList' });
+        const data = await requestHandlerApi({ action: 'getServicesList' }, apiKey);
         console.log(JSON.stringify(data, null, 2));
         break;
       }
       case 'get_countries': {
-        const data = await request({ action: 'getCountries' });
+        const data = await requestHandlerApi({ action: 'getCountries' }, apiKey);
         console.log(JSON.stringify(data, null, 2));
         break;
       }
       case 'get_balance': {
-        const data = await request({ action: 'getBalance' });
+        const data = await requestHandlerApi({ action: 'getBalance' }, apiKey);
         console.log(typeof data === 'string' ? data : JSON.stringify(data, null, 2));
         break;
       }
       case 'get_wallet': {
-        const base = new URL(BASE_URL).origin;
-        const url = new URL('/public/crypto/wallet', base + '/');
-        url.searchParams.set('api_key', API_KEY);
-        url.searchParams.set('coin', 'usdt');
-        url.searchParams.set('network', 'tron');
-        const res = await fetch(url.toString());
-        const text = await res.text();
-        try {
-          const data = JSON.parse(text);
-          console.log(JSON.stringify(data, null, 2));
-        } catch {
-          console.log(JSON.stringify({ wallet_address: null, error: text }));
-        }
+        const data = await requestWallet(apiKey);
+        console.log(JSON.stringify(data, null, 2));
         break;
       }
       case 'get_prices': {
@@ -69,7 +83,7 @@ async function main() {
         const params = { action: 'getPrices' };
         if (country) params.country = country;
         if (service) params.service = service;
-        const data = await request(params);
+        const data = await requestHandlerApi(params, apiKey);
         console.log(JSON.stringify(data, null, 2));
         break;
       }
@@ -81,7 +95,7 @@ async function main() {
         }
         const params = { action: 'getNumber', service };
         if (country) params.country = country;
-        const data = await request(params);
+        const data = await requestHandlerApi(params, apiKey);
         console.log(typeof data === 'string' ? data : JSON.stringify(data, null, 2));
         break;
       }
@@ -91,7 +105,7 @@ async function main() {
           console.error(JSON.stringify({ error: 'activationId required' }));
           process.exit(1);
         }
-        const data = await request({ action: 'getStatus', id: activationId });
+        const data = await requestHandlerApi({ action: 'getStatus', id: activationId }, apiKey);
         console.log(typeof data === 'string' ? data : JSON.stringify(data, null, 2));
         break;
       }
@@ -101,21 +115,21 @@ async function main() {
           console.error(JSON.stringify({ error: 'activationId and status required (status: 6=complete, 8=cancel)' }));
           process.exit(1);
         }
-        const data = await request({ action: 'setStatus', id: activationId, status });
+        const data = await requestHandlerApi({ action: 'setStatus', id: activationId, status }, apiKey);
         console.log(typeof data === 'string' ? data : JSON.stringify(data, null, 2));
         break;
       }
       default:
         console.error(JSON.stringify({
           error: 'Unknown command',
-          usage: 'grizzly-cli.js <get_services|get_countries|get_balance|get_prices|get_wallet|request_number|get_status|set_status> [args...]',
+          usage: 'grizzly-cli.mjs <get_services|get_countries|get_balance|get_prices|get_wallet|request_number|get_status|set_status> [args...]',
           examples: [
-            'node grizzly-cli.js get_services',
-            'node grizzly-cli.js get_balance',
-            'node grizzly-cli.js get_wallet',
-            'node grizzly-cli.js request_number ub 73',
-            'node grizzly-cli.js get_status ACTIVATION_ID',
-            'node grizzly-cli.js set_status ACTIVATION_ID 6',
+            'node grizzly-cli.mjs get_services',
+            'node grizzly-cli.mjs get_balance',
+            'node grizzly-cli.mjs get_wallet',
+            'node grizzly-cli.mjs request_number ub 73',
+            'node grizzly-cli.mjs get_status ACTIVATION_ID',
+            'node grizzly-cli.mjs set_status ACTIVATION_ID 6',
           ],
         }));
         process.exit(1);
