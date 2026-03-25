@@ -20,7 +20,7 @@ Use this skill when the user needs: SMS verification, virtual numbers (Uber, Tel
 exec(command="node {baseDir}/scripts/grizzly-cli.mjs get_services", env={"GRIZZLY_SMS_API_KEY": "<exact_key_user_sent>"})
 ```
 
-Example: user sends `e069d36075b9b230fe1eb159b86536d1` → use `env={"GRIZZLY_SMS_API_KEY": "e069d36075b9b230fe1eb159b86536d1"}` in exec. Then proceed with get_services, request_number, etc.
+Example: user sends `e069d36075b9b230fe1eb159b86526d1` → use `env={"GRIZZLY_SMS_API_KEY": "e069d36075b9b230fe1eb159b86526d1"}` in exec. Then proceed with get_services, request_number, etc.
 
 If the key is already in config (skills.entries.grizzly_sms.env), omit env. Otherwise always ask and pass via env.
 
@@ -43,28 +43,9 @@ Use host=gateway only if tools.exec.host is configured for gateway. OpenClaw rep
 | List services (find Uber) | `node {baseDir}/scripts/grizzly-cli.mjs get_services` |
 | List countries (Brazil=73) | `node {baseDir}/scripts/grizzly-cli.mjs get_countries` |
 | Check balance | `node {baseDir}/scripts/grizzly-cli.mjs get_balance` |
-| Get crypto wallet for top-up | `node {baseDir}/scripts/grizzly-cli.mjs get_wallet` |
 | Request number | `node {baseDir}/scripts/grizzly-cli.mjs request_number ub 73` |
 | Get SMS code | `node {baseDir}/scripts/grizzly-cli.mjs get_status <activationId>` |
 | Complete activation | `node {baseDir}/scripts/grizzly-cli.mjs set_status <activationId> 6` |
-
-## Balance & Crypto Top-up
-
-When the user asks about **balance**, **top-up**, **replenish**, or gets **NO_BALANCE**:
-
-1. **get_balance** — show current balance (e.g. ACCESS_BALANCE:10.50)
-2. **get_wallet** — returns `wallet_address` for USDT (TRC-20)
-3. Tell the user: *Send USDT (TRC-20 network) to this address. Minimum 50 USD. Funds are credited automatically to your Grizzly balance.*
-
-Format the wallet address for easy copying (monospace on Telegram). Example:
-
-```
-Balance: `10.50` USD
-Crypto wallet (USDT TRC-20): `TReiqL2AkD1euTgjXmrtKLnwDAbNPgTstU`
-Min top-up: 50 USD. Funds credit automatically.
-```
-
-You are NOT handling crypto transactions — you only retrieve and display the wallet address from the Grizzly API so the user can send USDT from their own wallet.
 
 ## Full Registration Workflow (any service, any country)
 

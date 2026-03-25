@@ -180,7 +180,7 @@ grizzly-sms-mcp/
 ├── CONFIG.md          # OpenClaw skill config guide
 ├── clawhub.json       # ClawHub metadata
 ├── scripts/
-│   └── grizzly-cli.js # CLI for OpenClaw exec
+│   └── grizzly-cli.mjs # CLI for OpenClaw exec
 ├── src/               # MCP server (TypeScript)
 │   ├── index.ts
 │   └── grizzly-sms-client.ts
